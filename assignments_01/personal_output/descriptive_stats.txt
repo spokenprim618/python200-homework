@@ -1,0 +1,32 @@
+Happiness score information
+mean      5.448900
+median    5.468650
+std       1.125645
+
+Happiness score information by year
+          mean   median       std
+Year                             
+2015  5.376139  5.23000  1.145100
+2016  5.382185  5.31400  1.141674
+2017  5.354019  5.27900  1.131230
+2018  5.372920  5.35790  1.122574
+2019  5.405077  5.37260  1.116458
+2020  5.472830  5.51270  1.115936
+2021  5.532814  5.50535  1.077569
+2022  5.554175  5.57830  1.090557
+2023  5.539755  5.68430  1.139908
+2024  5.530882  5.80060  1.181221
+
+Happiness score information by region
+                                        mean   median       std
+Regional indicator                                             
+Central and Eastern Europe          5.743430  5.76640  0.581915
+Commonwealth of Independent States  5.365961  5.45490  0.550288
+East Asia                           5.691274  5.78930  0.497667
+Latin America and Caribbean         6.007505  6.10500  0.634770
+Middle East and North Africa        5.246264  5.12900  1.054363
+North America and ANZ               7.151337  7.19165  0.172311
+South Asia                          4.397560  4.50040  0.852702
+Southeast Asia                      5.406551  5.38430  0.734318
+Sub-Saharan Africa                  4.316006  4.35570  0.667872
+Western Europe                      6.722703  6.87050  0.743801
