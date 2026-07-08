@@ -13,7 +13,6 @@ def load_Data():
     main_df = pd.DataFrame(columns = ['Year'])
     for file in os.listdir("data"):
         full_path = os.path.join("data", file)
-        print(full_path)
         sub_df = pd.read_csv(full_path,sep=";",decimal=",")
         year_used = int(file[16:20])
         if "Ladder score" in sub_df.columns:
@@ -25,7 +24,6 @@ def load_Data():
     completed_path = os.path.join("./outputs","merged_happiness.csv")
     main_df.to_csv(completed_path,sep=";",decimal=",",index=False)
 
-    print(f"Completed path: {completed_path}")
 
     total_countries = main_df["Country"].nunique()
     total_years = main_df["Year"].nunique()
@@ -51,7 +49,7 @@ def des_stats(file):
     f"Happiness score information by region\n{infor.to_string()}\n"
     )
     
-    with open("personal_output/descriptive_stats.txt", "w") as f:
+    with open("outputs/descriptive_stats.txt", "w") as f:
         f.write(output)
     
     top_regions = infor.sort_values(by="mean",ascending=False).head(3)
@@ -188,7 +186,7 @@ def hypothesis_tests(file):
     output.append(f"Region comparison t-statistic: {t_stat2:.3f}")
     output.append(f"Region comparison p-value: {p_value2:.6f}")
 
-    with open("personal_output/hypothesis_test_results.txt", "w") as f:
+    with open("outputs/hypothesis_test_results.txt", "w") as f:
         f.write("\n".join(output))
     return {
         "mean_2019": mean_2019,
@@ -239,7 +237,7 @@ def mult_corr_problem(file):
 
 
 
-    with open("personal_output/correlation_tests.txt", "w", encoding="utf-8") as f:
+    with open("outputs/correlation_tests.txt", "w", encoding="utf-8") as f:
         f.write("\n".join(output))
     
 
@@ -272,7 +270,7 @@ def summaryR():
     logger.info(f"Dataset summary:\n{load_result}")
     output.append(f"Dataset summary:\n{load_result}\n")
 
-    file = os.path.join("./outputs", "WHOutput.csv")
+    file = os.path.join("./outputs","merged_happiness.csv")
 
     # Descriptive statistics
     des_result = des_stats(file)
