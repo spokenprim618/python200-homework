@@ -37,12 +37,12 @@ print(f"Mean grade by city: {df.groupby('city')['grade'].mean()}")
 
 # Pandas Q6
 
-df.loc[df['city'] == 'Austin', 'city']  = 'Housten'
+df.loc[df['city'] == 'Austin', 'city']  = 'Houston'
 print(f"Confirming change: {df.head()}")
 
 # Pandas Q7
 
-df_sorted = df.sort_values(by='grade', ascending=True)
+df_sorted = df.sort_values(by='grade', ascending=False)
 
 print(f"Sorted by grad: {df_sorted.head(3)}")
 
@@ -56,6 +56,7 @@ import numpy as np
 new_array = np.array([10, 20, 30, 40, 50])
 
 print(f"Shape: {new_array.shape}")
+print(f"Shape: {new_array.ndim}")
 print(f"Array type: {new_array.dtype}")
 
 # Numpy Q2
@@ -76,7 +77,7 @@ print(f"Sliced array 2x2: {sliced_arr}")
 # Numpy Q4
 
 first_arr = np.zeros((3,4))
-second_arr = np.zeros((2,5))
+second_arr = np.ones((2,5))
 
 print(f"First arr: {first_arr}")
 print(f"Second arr: {second_arr}")
@@ -135,7 +136,7 @@ plt.scatter(x2,y2, color="blue")
 plt.title("Scatter",)
 plt.xlabel("x")
 plt.ylabel("y")
-plt.legend()
+plt.legend(labels = ['First','Second'])
 plt.show()
 
 # Matplotlib  Q4
@@ -188,8 +189,8 @@ plt.show()
 
 #The most skewed distribution is the second because the median is right skewed
 #This makes sense because the exponential would rapidly increase the magnitude of the larger values
-#The best measure of central tendancy for the first is average there isn't much influence from outliers
-#The best measure of central tendancy for the first is median even with influence from outliers it will stay the least influenced
+#The best measure of central tendancy for the first dist is average there isn't much influence from outliers
+#The best measure of central tendancy for the second dist is median even with influence from outliers it will stay the least influenced
 
 
 # Descriptive Stats Q5
@@ -256,7 +257,7 @@ print(f"P-value: {tTestPaired.pvalue}")
 
 scores = [72, 68, 75, 70, 69, 74, 71, 73]
 scoresnp = np.array(scores)
-tTest1Samp = stats.ttest_1samp(data, popmean=70)
+tTest1Samp = stats.ttest_1samp(scoresnp, popmean=70)
 
 print(f"T-statistic: {tTest1Samp.statistic}")
 print(f"P-value: {tTest1Samp.pvalue}")
@@ -268,10 +269,11 @@ tTestCompare = stats.ttest_ind(group_a,group_b,alternative="less")
 print(f"P-value: {tTestCompare.pvalue}")
 
 # Hypothesis Testing Q6
-
-#The T stat is negative therefore group A's mean is less than group B's
-#The difference in these means are statstically significant therefore
-#the means do have a large difference and the null hypothesis being no difference is null.
+print(
+    "The T stat is negative therefore group A's mean is less than group B's"
+    "The difference in these means are statstically significant therefore"
+    "the means do have a large difference and the null hypothesis being no difference is null."
+    )
 
 # --- Correlation ---
 

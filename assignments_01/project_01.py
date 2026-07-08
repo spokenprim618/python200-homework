@@ -22,7 +22,7 @@ def load_Data():
         sub_df['Year'] = year_used
         main_df = pd.concat([main_df, sub_df], ignore_index=True)
     
-    completed_path = os.path.join("./outputs","WHOutput.csv")
+    completed_path = os.path.join("./outputs","merged_happiness.csv")
     main_df.to_csv(completed_path,sep=";",decimal=",",index=False)
 
     print(f"Completed path: {completed_path}")
