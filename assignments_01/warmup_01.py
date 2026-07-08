@@ -56,7 +56,7 @@ import numpy as np
 new_array = np.array([10, 20, 30, 40, 50])
 
 print(f"Shape: {new_array.shape}")
-print(f"Shape: {new_array.ndim}")
+print(f"Size of Ndim: {new_array.ndim}")
 print(f"Array type: {new_array.dtype}")
 
 # Numpy Q2
@@ -346,7 +346,7 @@ def create_series(arr):
     return pd.Series(arr, name = 'values')
 
 def clean_data(series):
-    return series.dropna(ignore_index=True)
+    return series.dropna().reset_index(drop=True)
 
 def summarize_data(series):
     return {"mean":series.agg("mean"),"median":series.agg("median"),"std":series.agg("std"),"mode":series.mode()[0]}

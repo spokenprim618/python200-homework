@@ -10,6 +10,8 @@ import os
 
 @task(retries=3, retry_delay_seconds=2)
 def load_Data():
+    logger = get_run_logger()
+
     main_df = pd.DataFrame(columns = ['Year'])
     for file in os.listdir("data"):
         full_path = os.path.join("data", file)
@@ -23,6 +25,7 @@ def load_Data():
     
     completed_path = os.path.join("./outputs","merged_happiness.csv")
     main_df.to_csv(completed_path,sep=";",decimal=",",index=False)
+    logger.info("Data merged and loaded successfully")
 
 
     total_countries = main_df["Country"].nunique()
@@ -61,17 +64,18 @@ def des_stats(file):
 @task
 def visualizations(file):
     df = pd.read_csv(file,sep=";",decimal=",")
-
+    logger = get_run_logger()
     #Histogram
 
     for year, group in df.groupby('Year'):
         plt.hist(group['Happiness score'], alpha=0.5, label=str(year))
-        plt.legend()    
     plt.title("Dist of Happiness Scores")
     plt.xlabel("Happiness Score by Year")
     plt.ylabel("Frequency")
     plt.savefig(os.path.join("outputs", "happiness_histogram.png"))
     plt.close()
+    logger.info("Histogram is completed")
+
 
     # Box Plot
     grouped = df.groupby('Year')['Happiness score']
@@ -81,6 +85,7 @@ def visualizations(file):
     plt.title("Happiness by Year")
     plt.savefig(os.path.join("outputs", "happiness_by_year.png"))
     plt.close()
+    logger.info("Box Plot is completed")
 
     # Scatter plot
     plt.scatter(df['GDP per capita'],df['Happiness score'], color="green")
@@ -90,6 +95,7 @@ def visualizations(file):
     plt.legend()
     plt.savefig(os.path.join("outputs", "gdp_vs_happiness.png"))
     plt.close()
+    logger.info("Scatter plot is completed")
 
     # Heatmap
     numeric_df = df.select_dtypes(include="number")
@@ -98,6 +104,7 @@ def visualizations(file):
     plt.title("Correlation Heatmap")
     plt.savefig(os.path.join("outputs", "correlation_heatmap.png"))
     plt.close()
+    logger.info("Heatmap is completed")
 
 
 @task
