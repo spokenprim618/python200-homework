@@ -1,0 +1,7 @@
+features,R2 Mean,RMSE Mean
+"['age', 'studytime', 'failures', 'absences']",0.0628,4.2985
+"['age', 'studytime', 'failures', 'absences', 'goout']",0.0611,4.311
+"['age', 'studytime', 'failures', 'absences', 'Walc']",0.0539,4.3167
+"['age', 'studytime', 'failures', 'absences', 'goout', 'Walc']",0.0592,4.3144
+"['age', 'studytime', 'failures', 'absences', 'goout', 'Walc', 'freetime', 'activities_yes']",0.0398,4.3704
+"['age', 'studytime', 'failures', 'absences', 'goout', 'Walc', 'freetime', 'activities_yes', 'schoolsup_yes']",0.0473,4.3573

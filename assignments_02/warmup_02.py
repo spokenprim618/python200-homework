@@ -10,7 +10,7 @@ from sklearn.datasets import make_blobs
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 
-years  = np.array([1, 2, 3, 5, 7, 10]).reshape(-1, 1)
+years = np.array([1, 2, 3, 5, 7, 10]).reshape(-1, 1)
 salary = np.array([45000, 50000, 60000, 75000, 90000, 120000])
 
 linear_model1 = LinearRegression()
@@ -19,8 +19,8 @@ linear_model1.fit(years, salary)
 m = linear_model1.coef_
 b = linear_model1.intercept_
 
-years4 = m*4 + b
-years8 = m*8 + b
+years4 = m * 4 + b
+years8 = m * 8 + b
 
 print(f"Person with 4 years: {years4}")
 print(f"Person with 8 years: {years8}")
@@ -29,12 +29,11 @@ print(f"Y-intercept: {b}")
 
 # scikit-learn API Q2
 
-x = np.array([10, 20, 30, 40, 50]).reshape(-1,1)
+x = np.array([10, 20, 30, 40, 50]).reshape(-1, 1)
 
 # I learned scikit-learn needs the x to be 2d because it makes it into a column form which that model recognizes and can infer the shape of the input data
 
 # scikit-learn API Q3
-
 
 
 X_clusters, _ = make_blobs(n_samples=120, centers=3, cluster_std=0.8, random_state=7)
@@ -45,24 +44,12 @@ labels = kmeans_model1.labels_
 print(f"Cluster Labels: {centers}")
 print(f"Points in cluster: {np.bincount(labels)}")
 
-plt.scatter(
-    X_clusters[:, 0],
-    X_clusters[:, 1],
-    c=labels,
-    cmap='viridis'
-)
+plt.scatter(X_clusters[:, 0], X_clusters[:, 1], c=labels, cmap="viridis")
 
-plt.scatter(
-    centers[:, 0],
-    centers[:, 1],
-    c='red',
-    s=200,
-    marker='X'
-)
+plt.scatter(centers[:, 0], centers[:, 1], c="red", s=200, marker="X")
 
 plt.show()
 plt.savefig(os.path.join("outputs", "kmeans_clusters.png"))
-
 
 
 plt.plot(labels)
@@ -82,7 +69,7 @@ os.makedirs("outputs", exist_ok=True)
 
 # Linear Regression Q1
 
-plt.figure(figsize=(8,6))
+plt.figure(figsize=(8, 6))
 plt.scatter(age, cost, c=smoker, cmap="coolwarm")
 
 plt.title("Medical Cost vs Age")
@@ -99,17 +86,13 @@ X = age.reshape(-1, 1)
 y = cost
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=0.20,
-    random_state=42
+    X, y, test_size=0.20, random_state=42
 )
 
 print("X_train shape:", X_train.shape)
 print("X_test shape:", X_test.shape)
 print("y_train shape:", y_train.shape)
 print("y_test shape:", y_test.shape)
-
 
 
 # Linear Regression Q3
@@ -129,7 +112,7 @@ r2 = model.score(X_test, y_test)
 print("RMSE:", rmse)
 print("R²:", r2)
 
-# The coef suggests a fast positive rate of change in the price of healthcare. 
+# The coef suggests a fast positive rate of change in the price of healthcare.
 # It could be an effect of the smokers because looking at the graph there is a division
 # in smokers medical costs vs non smokers even regardless of age.
 
@@ -139,10 +122,7 @@ print("R²:", r2)
 X_full = np.column_stack([age, smoker])
 
 X_train_full, X_test_full, y_train_full, y_test_full = train_test_split(
-    X_full,
-    cost,
-    test_size=0.20,
-    random_state=42
+    X_full, cost, test_size=0.20, random_state=42
 )
 
 model_full = LinearRegression()
@@ -158,23 +138,20 @@ print("age coefficient:    ", model_full.coef_[0])
 print("smoker coefficient: ", model_full.coef_[1])
 
 # As suggested previously adding the smoker flag did help predictions and increases the r^2
-# The smoker coef suggests a higher rate of change in medical costs 
+# The smoker coef suggests a higher rate of change in medical costs
 
 # Linear Regression Q5
 
 y_pred_full = model_full.predict(X_test_full)
 
-plt.figure(figsize=(8,6))
+plt.figure(figsize=(8, 6))
 
 plt.scatter(y_pred_full, y_test_full)
 
 min_val = min(y_pred_full.min(), y_test_full.min())
 max_val = max(y_pred_full.max(), y_test_full.max())
 
-plt.plot(
-    [min_val, max_val],
-    [min_val, max_val]
-)
+plt.plot([min_val, max_val], [min_val, max_val])
 
 plt.title("Predicted vs Actual")
 plt.xlabel("Predicted Cost")
@@ -184,6 +161,3 @@ plt.savefig(os.path.join("outputs", "predicted_vs_actual.png"))
 plt.show()
 
 # The diagonal would be if the model was correct in it's perdiction. Above is the model overpredicting and below the model is under perdicting
-
-
-

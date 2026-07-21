@@ -36,7 +36,7 @@ df_clean = df[df["G3"] != 0].copy()
 
 print("Filtered Shape:", df_clean.shape)
 
-binary_cols = ["schoolsup","internet","higher","activities"]
+binary_cols = ["schoolsup", "internet", "higher", "activities"]
 
 for col in binary_cols:
     df_clean[col] = df_clean[col].map({"yes": 1, "no": 0})
@@ -129,9 +129,23 @@ print("R²:", r2)
 
 # Task 5
 
-feature_cols = ["age", "Medu", "Fedu", "traveltime", "studytime", "failures",
-                "absences", "freetime", "goout", "Walc", "schoolsup",
-                "internet", "higher", "activities", "sex"]
+feature_cols = [
+    "age",
+    "Medu",
+    "Fedu",
+    "traveltime",
+    "studytime",
+    "failures",
+    "absences",
+    "freetime",
+    "goout",
+    "Walc",
+    "schoolsup",
+    "internet",
+    "higher",
+    "activities",
+    "sex",
+]
 X = df_clean[feature_cols].values
 y = df_clean["G3"].values
 
@@ -186,8 +200,18 @@ print("Best Model RMSE:", rmse)
 print("Best Model R²:", test_r2)
 
 feature_cols_g1 = [
-    "failures", "Medu", "Fedu", "studytime", "higher", "schoolsup",
-    "internet", "sex", "freetime", "activities", "traveltime", "G1"
+    "failures",
+    "Medu",
+    "Fedu",
+    "studytime",
+    "higher",
+    "schoolsup",
+    "internet",
+    "sex",
+    "freetime",
+    "activities",
+    "traveltime",
+    "G1",
 ]
 
 X = df_clean[feature_cols_g1].values
@@ -208,7 +232,7 @@ print("\nModel Including G1")
 print("Test R²:", g1_r2)
 
 # The values are all clustered in the middle then spreading left and right. so many of similiar error in this region guessing above or below .
-# Values above are over estimated and values above are under estimated. 
+# Values above are over estimated and values above are under estimated.
 
 # The filtered dataset size is 357 and the test set is 72.
 # The RMSE within the range acceptable but can be large for the small range. The R^2 is low and can be seen how many errors there were in predictions
@@ -222,5 +246,5 @@ print("Test R²:", g1_r2)
 
 
 # I really don't know why but it was something with the additional features maybe it no longer became so important like more important features came in
-# Maybe along with abscenses the want for education didn't matter but going out more did. Going out more could be a higher correlated due to the behavriol aspects 
+# Maybe along with abscenses the want for education didn't matter but going out more did. Going out more could be a higher correlated due to the behavriol aspects
 # These are both habitual and most times are addicitve which can hurt scores
