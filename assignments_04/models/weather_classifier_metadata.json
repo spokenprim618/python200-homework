@@ -1,0 +1,22 @@
+{
+    "python_version": "3.14.6",
+    "scikit_learn_version": "1.9.0",
+    "feature_names": [
+        "temperature_2m_max",
+        "temperature_2m_min",
+        "precipitation_sum",
+        "wind_speed_10m_max"
+    ],
+    "best_hyperparameters": {
+        "clf__C": 100.0
+    },
+    "test_auc": 0.9268707482993198,
+    "latitude": 25.7617,
+    "longitude": -80.1918,
+    "label_thresholds": {
+        "temperature_2m_max": "7 <= x <= 26",
+        "temperature_2m_min": "x >= 0",
+        "precipitation_sum": "x < 3.0",
+        "wind_speed_10m_max": "x < 30"
+    }
+}
