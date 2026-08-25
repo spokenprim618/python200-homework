@@ -24,7 +24,7 @@ print(f"Students who passed and have a grade above 80: {df[(df['grade']>80) & (d
 # Pandas Q3
 
 df['grade_curved'] = df['grade'] + 5
-print(f"Curved grades: {df.head()}")
+print(f"Curved grades: {df}")
 
 # Pandas Q4
 
@@ -133,9 +133,9 @@ x2, y2 = [1, 2, 3, 4, 5], [5, 4, 3, 2, 1]
 
 plt.scatter(x1,y1, color="green")
 plt.scatter(x2,y2, color="blue")
-plt.title("Scatter",)
-plt.xlabel("x")
-plt.ylabel("y")
+plt.title("Scatter plot of group 1 vs 2",)
+plt.xlabel("x axis")
+plt.ylabel("y axis")
 plt.legend(labels = ['First','Second'])
 plt.show()
 
@@ -170,11 +170,12 @@ plt.xlabel("x")
 plt.ylabel("y")
 plt.show()
 
+# Descriptive Stats Q3
 
 group_a = [55, 60, 63, 70, 68, 62, 58, 65]
 group_b = [75, 80, 78, 90, 85, 79, 82, 88]
 
-plt.boxplot([group_a,group_b],label=["Group A", "Group B"])
+plt.boxplot([group_a,group_b], labels=["Group A", "Group B"])
 plt.title("Score Comparison")
 plt.show()
 
@@ -183,7 +184,7 @@ plt.show()
 normal_data = np.random.normal(50, 5, 200)
 skewed_data = np.random.exponential(10, 200)
 
-plt.boxplot([normal_data,skewed_data],label=["Normal Data", "Skewed Data"])
+plt.boxplot([normal_data,skewed_data],labels=["Normal", "Exponential"])
 plt.title("Distribution Comparison")
 plt.show()
 
@@ -300,7 +301,7 @@ x = [1,  2,  3,  4,  5,  6,  7,  8,  9, 10]
 y = [10, 9,  7,  8,  6,  5,  3,  4,  2,  1]
 
 rCorr = pearsonr(x,y)
-print(f"T-statistic: {rCorr.statistic}")
+print(f"Correlation Coefficient:: {rCorr.statistic}")
 print(f"P-value: {rCorr.pvalue}")
 
 # Correlation Q3
