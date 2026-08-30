@@ -31,6 +31,7 @@ def load_Data():
     total_countries = main_df["Country"].nunique()
     total_years = main_df["Year"].nunique()
     return {"total_countries": total_countries,"total_years": total_years}
+    #It is always merged consistently to the target directory
 
 @task
 def des_stats(file):
@@ -265,7 +266,7 @@ def mult_corr_problem(file):
         strongest_result = ("No variables showed a statistically significant correlation with happiness score after Bonferroni correction."
         )
     return {"strongest_correlation": strongest_result}
-
+@task
 def summaryR():
     logger = get_run_logger()
 
@@ -328,7 +329,10 @@ def summaryR():
         f.write("\n".join(output))
 @flow
 def happiness_pipeline():
+    logger = get_run_logger()
+
     summaryR()
+    logger.info("Success")
    
 
 
