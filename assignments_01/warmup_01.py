@@ -38,7 +38,8 @@ print(f"Mean grade by city: {df.groupby('city')['grade'].mean()}")
 # Pandas Q6
 
 df.loc[df['city'] == 'Austin', 'city']  = 'Houston'
-print(f"Confirming change: {df.head()}")
+print(f"Confirming change: {df['city','name']}")
+
 
 # Pandas Q7
 
@@ -358,5 +359,6 @@ def data_pipeline(arr):
     summary = summarize_data(cleaned_series)
     for key in summary:
         print(f"Key {key} and value {summary[key]}")
+    return summary
 
 data_pipeline(arr)

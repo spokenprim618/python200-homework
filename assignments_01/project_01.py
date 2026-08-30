@@ -10,10 +10,11 @@ import os
 
 @task(retries=3, retry_delay_seconds=2)
 def load_Data():
+    files_to_load = ['world_happiness_2015.csv','world_happiness_2016.csv','world_happiness_2017.csv','world_happiness_2018.csv','world_happiness_2019.csv','world_happiness_2020.csv','world_happiness_2021.csv','world_happiness_2022.csv','world_happiness_2023.csv','world_happiness_2024.csv']
     logger = get_run_logger()
 
     main_df = pd.DataFrame(columns = ['Year'])
-    for file in os.listdir("data"):
+    for file in files_to_load:
         full_path = os.path.join("data", file)
         sub_df = pd.read_csv(full_path,sep=";",decimal=",")
         year_used = int(file[16:20])
@@ -66,10 +67,9 @@ def des_stats(file):
 def visualizations(file):
     df = pd.read_csv(file,sep=";",decimal=",")
     logger = get_run_logger()
+    
     #Histogram
-
-    for year, group in df.groupby('Year'):
-        plt.hist(group['Happiness score'], alpha=0.5, label=str(year))
+    plt.hist(df['Happiness score'], alpha=0.5)
     plt.title("Dist of Happiness Scores")
     plt.xlabel("Happiness Score by Year")
     plt.ylabel("Frequency")
@@ -149,7 +149,7 @@ def hypothesis_tests(file):
             "There is not enough statistical evidence to conclude that the average "
             "global happiness was different between 2019 and 2020. Any observed "
             "difference could reasonably be due to random variation because of "
-            "how small the differnce is."
+            "how small the differnce is. It is also seen through the means they are relatively close to eachother and therefore there is not enough evidence for there to be a significant difference."
     )
 
     logger.info(interpretation)
@@ -224,6 +224,7 @@ def mult_corr_problem(file):
     output.append(f"Bonferroni-adjusted alpha = {adjusted_alpha:.6f}\n")
 
     logger.info(f"Bonferroni-adjusted alpha = {adjusted_alpha:.6f}")
+    df = df.dropna()
 
     for col in test_cols:
         r, p = pearsonr(df[col], df['Happiness score'])
@@ -277,6 +278,8 @@ def summaryR():
     load_result = load_Data()
     logger.info(f"Dataset summary:\n{load_result}")
     output.append(f"Dataset summary:\n{load_result}\n")
+    logger.info("We are taking a sample of 175 countries accross 10 years")
+    output.append("We are taking a sample of 175 countries accross 10 years")
 
     file = os.path.join("./outputs","merged_happiness.csv")
 
@@ -293,6 +296,8 @@ def summaryR():
 
     logger.info(des_output)
     output.append(des_output)
+    logger.info("As shown the top 3 regions have their scores around 7 with a tight spread and lowest 3 have a score of 4 to 5 but slightly wider spread of scores.")
+    output.append("As shown the top 3 regions have their scores around 7 with a tight spread and lowest 3 have a score of 4 to 5 but slightly wider spread of scores.")
 
     # Visualizations
     visualizations(file)

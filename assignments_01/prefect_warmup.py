@@ -27,6 +27,7 @@ def pipeline_flow():
     summary = summarize_data(cleaned_series)
     for key in summary:
         print(f"Key {key} and value {summary[key]}")
+    return summary
 
 if __name__ == "__main__":
     pipeline_flow()

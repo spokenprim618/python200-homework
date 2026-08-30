@@ -1,9 +1,9 @@
 Bonferroni-adjusted alpha = 0.007143
 
-Year: r=0.062, p=0.015959,significant=False
+Year: r=0.063, p=0.015518,significant=False
 GDP per capita: r=0.631, p=0.000000,significant=True
 Social support: r=0.744, p=0.000000,significant=True
-Healthy life expectancy: r=nan, p=nan,significant=False
-Freedom to make life choices: r=0.591, p=0.000000,significant=True
+Healthy life expectancy: r=0.662, p=0.000000,significant=True
+Freedom to make life choices: r=0.592, p=0.000000,significant=True
 Generosity: r=0.106, p=0.000042,significant=True
-Perceptions of corruption: r=0.072, p=0.005446,significant=True
+Perceptions of corruption: r=0.072, p=0.005084,significant=True
