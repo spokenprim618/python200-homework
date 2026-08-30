@@ -28,8 +28,13 @@ print(f"Coef: {m}")
 print(f"Y-intercept: {b}")
 
 # scikit-learn API Q2
+x = np.array([10, 20, 30, 40, 50])
+print(f"Original shape: {x.shape}")
 
-x = np.array([10, 20, 30, 40, 50]).reshape(-1,1)
+x = x.reshape(-1,1)
+print(f"After shape: {x.shape}")
+
+
 
 # The function is built to handle multi-linear such as having multiple features so easier to have the assumed to be samples and specify the amount of features as shown only one column.
 
@@ -51,6 +56,7 @@ plt.scatter(
     c=labels,
     cmap='viridis'
 )
+plt.title("kmeans_clusters")
 plt.xlabel("X axis")
 plt.ylabel("Y axis")
 
@@ -61,7 +67,7 @@ plt.scatter(
     s=200,
     marker='X'
 )
-
+os.makedirs("outputs",exist_ok = True)
 plt.savefig(os.path.join("outputs", "kmeans_clusters.png"))
 plt.show()
 
