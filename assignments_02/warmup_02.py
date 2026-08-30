@@ -16,7 +16,7 @@ salary = np.array([45000, 50000, 60000, 75000, 90000, 120000])
 linear_model1 = LinearRegression()
 linear_model1.fit(years, salary)
 
-m = linear_model1.coef_
+m = linear_model1.coef_[0]
 b = linear_model1.intercept_
 
 years4 = m*4 + b
@@ -31,7 +31,7 @@ print(f"Y-intercept: {b}")
 
 x = np.array([10, 20, 30, 40, 50]).reshape(-1,1)
 
-# I learned scikit-learn needs the x to be 2d because it makes it into a column form which that model recognizes and can infer the shape of the input data
+# The function is built to handle multi-linear such as having multiple features so easier to have the assumed to be samples and specify the amount of features as shown only one column.
 
 # scikit-learn API Q3
 
@@ -51,17 +51,19 @@ plt.scatter(
     c=labels,
     cmap='viridis'
 )
+plt.xlabel("X axis")
+plt.ylabel("Y axis")
 
 plt.scatter(
     centers[:, 0],
     centers[:, 1],
-    c='red',
+    c='black',
     s=200,
     marker='X'
 )
 
-plt.show()
 plt.savefig(os.path.join("outputs", "kmeans_clusters.png"))
+plt.show()
 
 
 
