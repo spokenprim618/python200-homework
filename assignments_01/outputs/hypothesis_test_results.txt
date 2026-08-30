@@ -3,7 +3,7 @@
 t-statistic: -0.532
 p-value: 0.595285
 
-There is not enough statistical evidence to conclude that the average global happiness was different between 2019 and 2020. Any observed difference could reasonably be due to random variation because of how small the differnce is.
+There is not enough statistical evidence to conclude that the average global happiness was different between 2019 and 2020. Any observed difference could reasonably be due to random variation because of how small the differnce is. It is also seen through the means they are relatively close to eachother and therefore there is not enough evidence for there to be a significant difference.
 
 Western Europe mean happiness: 6.723
 Sub-Saharan Africa mean happiness: 4.316

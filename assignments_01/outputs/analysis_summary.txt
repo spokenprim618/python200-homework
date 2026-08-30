@@ -3,6 +3,7 @@ World Happiness Report Analysis Summary
 Dataset summary:
 {'total_countries': 175, 'total_years': 10}
 
+We are taking a sample of 175 countries accross 10 years
 Descriptive statistics summary:
 Top 3 regions by mean happiness:
                                  mean   median       std
@@ -18,6 +19,7 @@ Sub-Saharan Africa            4.316006  4.3557  0.667872
 South Asia                    4.397560  4.5004  0.852702
 Middle East and North Africa  5.246264  5.1290  1.054363
 
+As shown the top 3 regions have their scores around 7 with a tight spread and lowest 3 have a score of 4 to 5 but slightly wider spread of scores.
 Visualizations completed successfully
 
 Hypothesis test results:
@@ -25,7 +27,7 @@ Hypothesis test results:
 2020 mean: 5.473
 T-statistic: -0.532
 P-value: 0.595285
-Interpretation: There is not enough statistical evidence to conclude that the average global happiness was different between 2019 and 2020. Any observed difference could reasonably be due to random variation because of how small the differnce is.
+Interpretation: There is not enough statistical evidence to conclude that the average global happiness was different between 2019 and 2020. Any observed difference could reasonably be due to random variation because of how small the differnce is. It is also seen through the means they are relatively close to eachother and therefore there is not enough evidence for there to be a significant difference.
 
 Correlation analysis result:
 The variable most strongly correlated with happiness score after Bonferroni correction is Social support with a Pearson correlation of r=0.744.
