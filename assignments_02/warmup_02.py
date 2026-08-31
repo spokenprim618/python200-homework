@@ -36,7 +36,7 @@ print(f"After shape: {x.shape}")
 
 
 
-# The function is built to handle multi-linear such as having multiple features to have the assumed -1 to be samples and specify the amount of features as shown only one column to know the specific shape of the array and to know it is linear.
+# The function is built to handle multi-linear such as having multiple features to have the assumed -1 to be samples and specify the amount of features as shown only one column to know the specific shape of the array as linear.
 
 # scikit-learn API Q3
 

@@ -1,3 +1,5 @@
+# The seperator is ;
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
@@ -10,7 +12,6 @@ import os
 file = "data\\student_performance_math.csv"
 
 # Task 1
-# The seperator is ;
 df = pd.read_csv(file, sep=";")
 
 print("Shape:", df.shape)
@@ -209,19 +210,15 @@ print("\nModel Including G1")
 print("Test R²:", g1_r2)
 
 # The values are all clustered in the middle then spreading left and right. so many of similiar error in this region guessing above or below .
-# Values above are over estimated and values above are under estimated. 
-
+# The values above diagonal show where predicted is too low and values below predicted is over predicted
 # The filtered dataset size is 357 and the test set is 72.
 # The RMSE within the range acceptable but can be large for the small range. The R^2 is low and can be seen how many errors there were in predictions
 # Typical predition error just gives you an idea of performance
 # largest pos was internet and largest neg was schoolsup this means they had the strongest correlation to G3 most related
 # I was suprised with how little freetime had an impact on G3
-
 # I don't think G1 causes G3 it is most likely an indicator of a greater problem however that needs more context
 # It could be because it shows it may be likely G1 scores show habits that will continue till G3 the person may not change without intervention if it is in a bad direction
 # Seeing the correlations of the smaller sections such as time studying or getting help or seeing the persons background such as parental education
-
-
 # I really don't know why but it was something with the additional features maybe it no longer became so important like more important features came in
 # Maybe along with abscenses the want for education didn't matter but going out more did. Going out more could be a higher correlated due to the behavriol aspects 
 # These are both habitual and most times are addicitve which can hurt scores
