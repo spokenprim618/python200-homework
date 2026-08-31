@@ -22,9 +22,9 @@ b = linear_model1.intercept_
 years4 = m*4 + b
 years8 = m*8 + b
 
-print(f"Person with 4 years: {years4}")
-print(f"Person with 8 years: {years8}")
-print(f"Coef: {m}")
+print(f"4 years of experience: {years4}")
+print(f"8 years of experience: {years8}")
+print(f"Model coefficient slope: {m}")
 print(f"Y-intercept: {b}")
 
 # scikit-learn API Q2
@@ -36,7 +36,7 @@ print(f"After shape: {x.shape}")
 
 
 
-# The function is built to handle multi-linear such as having multiple features so easier to have the assumed to be samples and specify the amount of features as shown only one column.
+# The function is built to handle multi-linear such as having multiple features to have the assumed -1 to be samples and specify the amount of features as shown only one column to know the specific shape of the array and to know it is linear.
 
 # scikit-learn API Q3
 
@@ -47,7 +47,7 @@ kmeans_model1 = KMeans(n_clusters=3, random_state=42)
 kmeans_model1.fit(X_clusters)
 centers = kmeans_model1.cluster_centers_
 labels = kmeans_model1.labels_
-print(f"Cluster Labels: {centers}")
+print(f"Cluster Centers: {centers}")
 print(f"Points in cluster: {np.bincount(labels)}")
 
 plt.scatter(
@@ -56,7 +56,7 @@ plt.scatter(
     c=labels,
     cmap='viridis'
 )
-plt.title("kmeans_clusters")
+plt.title("kmeans 3 clusters")
 plt.xlabel("X axis")
 plt.ylabel("Y axis")
 

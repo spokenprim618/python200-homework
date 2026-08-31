@@ -7,9 +7,10 @@ from sklearn.metrics import mean_squared_error, r2_score
 import numpy as np
 import os
 
-file = "assignments_02\data\student_performance_math.csv"
+file = "data\\student_performance_math.csv"
 
 # Task 1
+# The seperator is ;
 df = pd.read_csv(file, sep=";")
 
 print("Shape:", df.shape)
@@ -24,7 +25,7 @@ plt.hist(df["G3"], bins=21)
 plt.title("Distribution of Final Math Grades")
 plt.xlabel("Final Grade (G3)")
 plt.ylabel("Count")
-plt.savefig("assignments_02\outputs\g3_distribution.png")
+plt.savefig("outputs\\g3_distribution.png")
 plt.close()
 
 # Task 2
@@ -32,8 +33,8 @@ plt.close()
 print("\nOriginal Shape:", df.shape)
 
 df_clean = df[df["G3"] != 0].copy()
-# Keeping these rows of math grades = 0 would distort due to the large gap of 0 to other grades, they could be someone who didn't take the exam which can't be shown as predicted the model would think this is someone who after all the weights got a zero not that they never showed up as an example
-
+# Keeping these rows of math grades = 0 would distort due to the large gap of 0 to other grades, there could be someone who didn't take the exam which can't be shown as predicted the model would think this is someone who after all the weights got a zero not that they never showed up as an example
+# 0 also needed to be removed because it gives the wrong idea for the model to see such a sharp decrease and the model's conclusion could be off and create wrong correlations
 print("Filtered Shape:", df_clean.shape)
 
 binary_cols = ["schoolsup","internet","higher","activities"]
@@ -63,7 +64,7 @@ plt.scatter(df_temp["absences"], df_temp["G3"], alpha=0.6)
 plt.title("Absences vs G3 (Original Data)")
 plt.xlabel("Absences")
 plt.ylabel("G3")
-plt.savefig("assignments_02\outputs\\absences_vs_g3_original.png")
+plt.savefig("outputs\\absences_vs_g3_original.png")
 plt.close()
 
 plt.figure(figsize=(8, 5))
@@ -71,7 +72,7 @@ plt.scatter(df_clean["absences"], df_clean["G3"], alpha=0.6)
 plt.title("Absences vs G3 (Filtered Data)")
 plt.xlabel("Absences")
 plt.ylabel("G3")
-plt.savefig("assignments_02\outputs\\absences_vs_g3_filtered.png")
+plt.savefig("outputs\\absences_vs_g3_filtered.png")
 plt.close()
 
 
@@ -89,7 +90,7 @@ plt.scatter(df_clean["failures"], df_clean["G3"], alpha=0.6)
 plt.title("Failures vs Final Grade")
 plt.xlabel("Failures")
 plt.ylabel("G3")
-plt.savefig("assignments_02\outputs\\failures_vs_g3.png")
+plt.savefig("outputs\\failures_vs_g3.png")
 plt.close()
 
 plt.figure(figsize=(8, 5))
@@ -97,7 +98,7 @@ plt.scatter(df_clean["studytime"], df_clean["G3"], alpha=0.6)
 plt.title("Study Time vs Final Grade")
 plt.xlabel("Study Time")
 plt.ylabel("G3")
-plt.savefig("assignments_02\outputs\studytime_vs_g3.png")
+plt.savefig("outputs\\studytime_vs_g3.png")
 plt.close()
 
 # Well the predictor being so correlated to itself isnt and previous grade and family education isnt suprising either
@@ -176,7 +177,7 @@ plt.title("Predicted vs Actual (Full Model)")
 plt.xlabel("Predicted G3")
 plt.ylabel("Actual G3")
 
-plt.savefig("assignments_02\outputs\predicted_vs_actual.png")
+plt.savefig("outputs\\predicted_vs_actual.png")
 plt.close()
 
 print("\nSummary")
