@@ -1,79 +1,109 @@
 # --- scikit-learn API ---
 
-# scikit-learn API Q1
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+
 from sklearn.linear_model import LinearRegression
 from sklearn.cluster import KMeans
 from sklearn.datasets import make_blobs
-from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 
-years  = np.array([1, 2, 3, 5, 7, 10]).reshape(-1, 1)
+
+os.makedirs("outputs", exist_ok=True)
+
+
+# scikit-learn API Q1
+
+years = np.array([1, 2, 3, 5, 7, 10]).reshape(-1, 1)
 salary = np.array([45000, 50000, 60000, 75000, 90000, 120000])
 
 linear_model1 = LinearRegression()
 linear_model1.fit(years, salary)
 
-m = linear_model1.coef_[0]
-b = linear_model1.intercept_
+slope = linear_model1.coef_[0]
+intercept = linear_model1.intercept_
 
-years4 = m*4 + b
-years8 = m*8 + b
+prediction_4 = linear_model1.predict([[4]])[0]
+prediction_8 = linear_model1.predict([[8]])[0]
 
-print(f"4 years of experience: {years4}")
-print(f"8 years of experience: {years8}")
-print(f"Model coefficient slope: {m}")
-print(f"Y-intercept: {b}")
+print("Slope:", slope)
+print("Intercept:", intercept)
+print("Prediction for 4 years:", prediction_4)
+print("Prediction for 8 years:", prediction_8)
+
 
 # scikit-learn API Q2
+
 x = np.array([10, 20, 30, 40, 50])
-print(f"Original shape: {x.shape}")
 
-x = x.reshape(-1,1)
-print(f"After shape: {x.shape}")
+print("\nOriginal shape:", x.shape)
 
+x = x.reshape(-1, 1)
 
+print("2D shape:", x.shape)
 
-# The function is built to handle multi-linear such as having multiple features to have the assumed -1 to be samples and specify the amount of features as shown only one column to know the specific shape of the array as linear.
+# scikit-learn expects X to be 2D because the rows represent samples
+# and the columns represent features.
+#
+# Here we have 5 samples and 1 feature, so the required shape is (5, 1).
+# Keeping X as shape (5,) would not tell scikit-learn how many features
+# each sample contains.
+
 
 # scikit-learn API Q3
 
+X_clusters, _ = make_blobs(
+    n_samples=120,
+    centers=3,
+    cluster_std=0.8,
+    random_state=7
+)
 
+kmeans_model1 = KMeans(
+    n_clusters=3,
+    random_state=42,
+    n_init=10
+)
 
-X_clusters, _ = make_blobs(n_samples=120, centers=3, cluster_std=0.8, random_state=7)
-kmeans_model1 = KMeans(n_clusters=3, random_state=42)
 kmeans_model1.fit(X_clusters)
+
 centers = kmeans_model1.cluster_centers_
 labels = kmeans_model1.labels_
-print(f"Cluster Centers: {centers}")
-print(f"Points in cluster: {np.bincount(labels)}")
+
+print("\nCluster Centers:")
+print(centers)
+
+print("\nPoints in Each Cluster:")
+print(np.bincount(labels))
+
+
+plt.figure(figsize=(8, 6))
 
 plt.scatter(
     X_clusters[:, 0],
     X_clusters[:, 1],
     c=labels,
-    cmap='viridis'
+    cmap="viridis"
 )
-plt.title("kmeans 3 clusters")
-plt.xlabel("X axis")
-plt.ylabel("Y axis")
 
 plt.scatter(
     centers[:, 0],
     centers[:, 1],
-    c='black',
+    c="black",
     s=200,
-    marker='X'
+    marker="X",
+    label="Cluster Centers"
 )
-os.makedirs("outputs",exist_ok = True)
+
+plt.title("K-Means Clustering of Synthetic Data into 3 Clusters")
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.legend()
+
 plt.savefig(os.path.join("outputs", "kmeans_clusters.png"))
-plt.show()
+plt.close()
 
-
-
-plt.plot(labels)
 
 # --- Linear Regression ---
 
@@ -84,21 +114,30 @@ num_patients = 100
 age = np.random.randint(20, 65, num_patients).astype(float)
 smoker = np.random.randint(0, 2, num_patients).astype(float)
 
-cost = 200 * age + 15000 * smoker + np.random.normal(0, 3000, num_patients)
+cost = (
+    200 * age
+    + 15000 * smoker
+    + np.random.normal(0, 3000, num_patients)
+)
 
-os.makedirs("outputs", exist_ok=True)
 
 # Linear Regression Q1
 
-plt.figure(figsize=(8,6))
-plt.scatter(age, cost, c=smoker, cmap="coolwarm")
+plt.figure(figsize=(8, 6))
 
-plt.title("Medical Cost vs Age")
-plt.xlabel("Age")
+plt.scatter(
+    age,
+    cost,
+    c=smoker,
+    cmap="coolwarm"
+)
+
+plt.title("Medical Cost vs Patient Age")
+plt.xlabel("Patient Age")
 plt.ylabel("Medical Cost")
 
 plt.savefig(os.path.join("outputs", "cost_vs_age.png"))
-plt.show()
+plt.close()
 
 
 # Linear Regression Q2
@@ -113,11 +152,10 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=42
 )
 
-print("X_train shape:", X_train.shape)
+print("\nX_train shape:", X_train.shape)
 print("X_test shape:", X_test.shape)
 print("y_train shape:", y_train.shape)
 print("y_test shape:", y_test.shape)
-
 
 
 # Linear Regression Q3
@@ -126,6 +164,7 @@ model = LinearRegression()
 
 model.fit(X_train, y_train)
 
+print("\nAge Only Model")
 print("Slope:", model.coef_[0])
 print("Intercept:", model.intercept_)
 
@@ -137,9 +176,12 @@ r2 = model.score(X_test, y_test)
 print("RMSE:", rmse)
 print("R²:", r2)
 
-# The coef suggests a fast positive rate of change in the price of healthcare. 
-# It could be an effect of the smokers because looking at the graph there is a division
-# in smokers medical costs vs non smokers even regardless of age.
+# The positive coefficient means the model predicts medical cost will
+# increase as age increases.
+#
+# The age-only model is also missing an important variable: smoking.
+# Looking at the graph, smokers have much higher medical costs even at
+# similar ages, so age by itself cannot explain all of the differences.
 
 
 # Linear Regression Q4
@@ -159,20 +201,28 @@ model_full.fit(X_train_full, y_train_full)
 
 r2_full = model_full.score(X_test_full, y_test_full)
 
-print("R² (Age only model):", r2)
-print("R² (Age + Smoker model):", r2_full)
+print("\nAge + Smoker Model")
+print("R² (Age Only Model):", r2)
+print("R² (Age + Smoker Model):", r2_full)
 
-print("age coefficient:    ", model_full.coef_[0])
-print("smoker coefficient: ", model_full.coef_[1])
+print("Age Coefficient:", model_full.coef_[0])
+print("Smoker Coefficient:", model_full.coef_[1])
 
-# As suggested previously adding the smoker flag did help predictions and increases the r^2
-# The smoker coef suggests a higher rate of change in medical costs 
+# Adding the smoker feature increases R² because smoking is an important
+# part of how the data was generated.
+#
+# The age coefficient represents the predicted increase in medical cost
+# for one additional year of age while smoking status stays the same.
+#
+# The smoker coefficient represents how much higher the predicted cost is
+# for a smoker compared with a non-smoker of the same age.
+
 
 # Linear Regression Q5
 
 y_pred_full = model_full.predict(X_test_full)
 
-plt.figure(figsize=(8,6))
+plt.figure(figsize=(8, 6))
 
 plt.scatter(y_pred_full, y_test_full)
 
@@ -184,14 +234,18 @@ plt.plot(
     [min_val, max_val]
 )
 
-plt.title("Predicted vs Actual")
-plt.xlabel("Predicted Cost")
-plt.ylabel("Actual Cost")
+plt.title("Predicted vs Actual Medical Costs")
+plt.xlabel("Predicted Medical Cost")
+plt.ylabel("Actual Medical Cost")
 
 plt.savefig(os.path.join("outputs", "predicted_vs_actual.png"))
-plt.show()
+plt.close()
 
-# The diagonal would be if the model was correct in it's perdiction. Above is the model overpredicting and below the model is under perdicting
-
-
-
+# The diagonal represents a perfect prediction where predicted cost equals
+# actual cost.
+#
+# A point above the line means the actual cost was higher than predicted,
+# so the model underpredicted.
+#
+# A point below the line means the actual cost was lower than predicted,
+# so the model overpredicted.
