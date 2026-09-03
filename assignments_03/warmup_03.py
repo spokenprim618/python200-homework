@@ -9,8 +9,9 @@ from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.metrics import (
+OneVsRestClassifier(
+    LogisticRegression(solver="liblinear")
+)from sklearn.metrics import (
     accuracy_score,
     classification_report,
     confusion_matrix,
@@ -115,13 +116,15 @@ cv_scores = cross_val_score(
     cv=5
 )
 
-print("Fold scores:", cv_scores)
-print("Mean CV score:", cv_scores.mean())
-print("Standard deviation:", cv_scores.std())
+for fold, score in enumerate(cv_scores, start=1):
+    print(f"Fold {fold} Accuracy: {score:.4f}")
 
-# Cross-validation gives us several different train/validation splits.
-# This gives a better idea of whether the model performs consistently
-# instead of depending on one particular split.
+print(f"Mean CV Accuracy: {cv_scores.mean():.4f}")
+print(f"Standard Deviation: {cv_scores.std():.4f}")
+
+# Cross-validation tests the model on several different splits of the
+# training data. This gives a better idea of whether the model performs
+# consistently instead of depending on one split.
 
 
 # --- KNN Q4 ---
@@ -233,90 +236,69 @@ print(
 
 print("\n=== Logistic Regression Q1 ===")
 
-# OneVsRestClassifier trains one binary Logistic Regression model
-# for each Iris class against all of the other classes.
-
-
 lr_001 = OneVsRestClassifier(
     LogisticRegression(
         C=0.01,
         max_iter=1000,
-        solver="lbfgs"
+        solver="liblinear"
     )
 )
 
-lr_001.fit(
-    X_train_scaled,
-    y_train
-)
+lr_001.fit(X_train_scaled, y_train)
 
 coef_total_001 = sum(
-    np.abs(est.coef_).sum()
-    for est in lr_001.estimators_
+    np.abs(model.coef_).sum()
+    for model in lr_001.estimators_
 )
 
 print("C = 0.01")
-print(
-    "Total coefficient magnitude:",
-    coef_total_001
-)
+print("Total coefficient magnitude:", coef_total_001)
 
 
 lr_1 = OneVsRestClassifier(
     LogisticRegression(
         C=1.0,
         max_iter=1000,
-        solver="lbfgs"
+        solver="liblinear"
     )
 )
 
-lr_1.fit(
-    X_train_scaled,
-    y_train
-)
+lr_1.fit(X_train_scaled, y_train)
 
 coef_total_1 = sum(
-    np.abs(est.coef_).sum()
-    for est in lr_1.estimators_
+    np.abs(model.coef_).sum()
+    for model in lr_1.estimators_
 )
 
 print("\nC = 1.0")
-print(
-    "Total coefficient magnitude:",
-    coef_total_1
-)
+print("Total coefficient magnitude:", coef_total_1)
 
 
 lr_100 = OneVsRestClassifier(
     LogisticRegression(
         C=100,
         max_iter=1000,
-        solver="lbfgs"
+        solver="liblinear"
     )
 )
 
-lr_100.fit(
-    X_train_scaled,
-    y_train
-)
+lr_100.fit(X_train_scaled, y_train)
 
 coef_total_100 = sum(
-    np.abs(est.coef_).sum()
-    for est in lr_100.estimators_
+    np.abs(model.coef_).sum()
+    for model in lr_100.estimators_
 )
 
 print("\nC = 100")
-print(
-    "Total coefficient magnitude:",
-    coef_total_100
-)
+print("Total coefficient magnitude:", coef_total_100)
 
-# Smaller C means stronger regularization, which pushes the
-# coefficients closer to zero.
+# OneVsRestClassifier creates one Logistic Regression model for each
+# Iris class against all of the other classes.
 #
-# Larger C means weaker regularization, so the model is allowed
-# to use larger coefficient values.
-
+# Smaller C means stronger regularization, so the coefficients are
+# pushed closer to zero.
+#
+# Larger C means weaker regularization, so larger coefficients are allowed.
 
 # --- Digits Setup ---
 
