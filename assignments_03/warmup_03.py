@@ -9,9 +9,7 @@ from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.multiclass import OneVsRestClassifier(
-    LogisticRegression(solver="liblinear")
-)
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
@@ -27,9 +25,8 @@ os.makedirs("outputs", exist_ok=True)
 
 iris = load_iris(as_frame=True)
 
-X = iris.data
-y = iris.target
-
+X = iris["data"]
+y = iris["target"]
 
 # --- Preprocessing Q1 ---
 
@@ -160,7 +157,7 @@ for k in k_values:
         best_k = k
 
 print("\nSuggested k:", best_k)
-# Running through tests of each K value this result here would be the proven to be the best_k
+# Running through tests of each K value this result here would be the proven to be 5 because after mean accuracy decreases
 
 # --- Classifier Evaluation Q1 ---
 
@@ -173,8 +170,7 @@ cm = confusion_matrix(
 
 disp = ConfusionMatrixDisplay(
     confusion_matrix=cm,
-    display_labels=iris.target_names
-)
+    display_labels=iris["target_names"])
 
 disp.plot(cmap="Blues")
 
@@ -305,9 +301,9 @@ print("Total coefficient magnitude:", coef_total_100)
 
 digits = load_digits()
 
-X_digits = digits.data
-y_digits = digits.target
-images = digits.images
+X_digits = digits["data"]
+y_digits = digits["target"]
+images = digits["images"]
 
 
 # --- PCA Q1 ---
