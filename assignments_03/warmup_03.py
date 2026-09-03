@@ -9,9 +9,10 @@ from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
-OneVsRestClassifier(
+from sklearn.multiclass import OneVsRestClassifier(
     LogisticRegression(solver="liblinear")
-)from sklearn.metrics import (
+)
+from sklearn.metrics import (
     accuracy_score,
     classification_report,
     confusion_matrix,
@@ -60,7 +61,7 @@ X_train_scaled = scaler.fit_transform(X_train)
 
 # The test data uses the mean and standard deviation learned
 # from the training data.
-X_test_scaled = scaler.transform(X_test)
+X_test_scaled = scaler.transform(X_test) # Scaling does importve performance and can more accurately descrive relationships between features on an even scale.
 
 print("Column means of X_train_scaled:")
 print(X_train_scaled.mean(axis=0))
@@ -124,7 +125,7 @@ print(f"Standard Deviation: {cv_scores.std():.4f}")
 
 # Cross-validation tests the model on several different splits of the
 # training data. This gives a better idea of whether the model performs
-# consistently instead of depending on one split.
+# consistently instead of depending on one split so it becomes more trust worthy the more runs you have that are consistent.
 
 
 # --- KNN Q4 ---
@@ -159,7 +160,7 @@ for k in k_values:
         best_k = k
 
 print("\nSuggested k:", best_k)
-
+# Running through tests of each K value this result here would be the proven to be the best_k
 
 # --- Classifier Evaluation Q1 ---
 
@@ -443,7 +444,7 @@ plt.close()
 
 # The first several components capture a large amount of the
 # variation in the 64 original pixel features.
-# After around 12-13 components, much of the important variation
+# After 13 components, 80% of the variation
 # has already been captured.
 
 
