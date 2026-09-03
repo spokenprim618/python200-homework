@@ -865,132 +865,81 @@ else:
 
 # --- Task 4: Cross Validation ---
 
-print(
-    "\nTASK 4 - CROSS VALIDATION"
-)
-
+print("\nTASK 4 - CROSS VALIDATION")
 
 models = {
+    "KNN Unscaled": KNeighborsClassifier(
+        n_neighbors=5
+    ),
 
-    "KNN Unscaled":
-        KNeighborsClassifier(
-            n_neighbors=5
-        ),
+    "KNN Scaled": Pipeline([
+        ("scaler", StandardScaler()),
+        ("classifier", KNeighborsClassifier(n_neighbors=5))
+    ]),
 
-    "KNN Scaled":
-        Pipeline([
-            (
-                "scaler",
-                StandardScaler()
-            ),
-            (
-                "classifier",
-                KNeighborsClassifier(
-                    n_neighbors=5
-                )
+    "KNN PCA": Pipeline([
+        ("scaler", StandardScaler()),
+        ("pca", PCA(n_components=n)),
+        ("classifier", KNeighborsClassifier(n_neighbors=5))
+    ]),
+
+    "Decision Tree": DecisionTreeClassifier(
+        max_depth=best_tree_depth,
+        random_state=42
+    ),
+
+    "Random Forest": RandomForestClassifier(
+        random_state=42
+    ),
+
+    "Logistic Regression Scaled": Pipeline([
+        ("scaler", StandardScaler()),
+        (
+            "classifier",
+            LogisticRegression(
+                C=1.0,
+                max_iter=1000,
+                solver="liblinear"
             )
-        ]),
+        )
+    ]),
 
-    "KNN PCA":
-        Pipeline([
-            (
-                "scaler",
-                StandardScaler()
-            ),
-            (
-                "pca",
-                PCA(
-                    n_components=n
-                )
-            ),
-            (
-                "classifier",
-                KNeighborsClassifier(
-                    n_neighbors=5
-                )
+    "Logistic Regression PCA": Pipeline([
+        ("scaler", StandardScaler()),
+        ("pca", PCA(n_components=n)),
+        (
+            "classifier",
+            LogisticRegression(
+                C=1.0,
+                max_iter=1000,
+                solver="liblinear"
             )
-        ]),
-
-    "Decision Tree":
-        DecisionTreeClassifier(
-            max_depth=best_tree_depth,
-            random_state=42
-        ),
-
-    "Random Forest":
-        RandomForestClassifier(
-            random_state=42
-        ),
-
-    "Logistic Regression Scaled":
-        Pipeline([
-            (
-                "scaler",
-                StandardScaler()
-            ),
-            (
-                "classifier",
-                LogisticRegression(
-                    C=1.0,
-                    max_iter=1000,
-                    solver="liblinear"
-                )
-            )
-        ]),
-
-    "Logistic Regression PCA":
-        Pipeline([
-            (
-                "scaler",
-                StandardScaler()
-            ),
-            (
-                "pca",
-                PCA(
-                    n_components=n
-                )
-            ),
-            (
-                "classifier",
-                LogisticRegression(
-                    C=1.0,
-                    max_iter=1000,
-                    solver="liblinear"
-                )
-            )
-        ])
+        )
+    ])
 }
 
 
 cv_results = {}
 
-for name, model in models.items():
+for name, classifier in models.items():
 
     scores = cross_val_score(
-        model,
+        classifier,
         X_train,
         y_train,
         cv=5,
         scoring="accuracy"
     )
 
-    cv_results[name] = (
-        scores.mean()
-    )
+    cv_results[name] = scores.mean()
 
-    print(
-        f"\n{name}"
-    )
+    print(f"\n{name}")
 
-    print(
-        f"Mean Accuracy: "
-        f"{scores.mean():.4f}"
-    )
+    for fold, score in enumerate(scores, start=1):
+        print(f"Fold {fold}: {score:.4f}")
 
-    print(
-        f"Std Dev:       "
-        f"{scores.std():.4f}"
-    )
+    print(f"Mean Accuracy: {scores.mean():.4f}")
+    print(f"Standard Deviation: {scores.std():.4f}")
 
 
 best_cv_model = max(
@@ -998,72 +947,32 @@ best_cv_model = max(
     key=cv_results.get
 )
 
-print(
-    "\nBest CV Model:",
-    best_cv_model
-)
+print("\nBest Cross-Validated Model:", best_cv_model)
+
+# All classifiers from Task 3 are tested again using 5-fold
+# cross-validation. Comparing the mean accuracies gives a more reliable
+# comparison than using only one train/test split. The standard deviation
+# also shows how consistent each model is across the folds.
 
 
-# Cross-validation is more reliable than comparing models with only
-# one train/test split because each model is evaluated several times.
-#
-# The standard deviation tells us whether performance stays fairly
-# consistent across the different folds.
+# --- Task 5: Tree Pipeline ---
 
-
-# --- Task 5: Production Pipelines ---
-
-print(
-    "\nTASK 5 - PREDICTION PIPELINES"
-)
-
-
-# Find the best tree-based model using CV results.
-
-tree_model_names = [
-    "Decision Tree",
-    "Random Forest"
-]
-
-best_tree_name = max(
-    tree_model_names,
-    key=lambda name: cv_results[name]
-)
-
-
-if best_tree_name == "Random Forest":
-
-    tree_pipeline = Pipeline([
-        (
-            "classifier",
-            RandomForestClassifier(
-                random_state=42
-            )
+tree_pipeline = Pipeline([
+    (
+        "classifier",
+        RandomForestClassifier(
+            random_state=42
         )
-    ])
-
-else:
-
-    tree_pipeline = Pipeline([
-        (
-            "classifier",
-            DecisionTreeClassifier(
-                max_depth=best_tree_depth,
-                random_state=42
-            )
-        )
-    ])
-
+    )
+])
 
 tree_pipeline.fit(
     X_train,
     y_train
 )
 
-tree_pipeline_preds = (
-    tree_pipeline.predict(
-        X_test
-    )
+tree_pipeline_preds = tree_pipeline.predict(
+    X_test
 )
 
 tree_pipeline_acc = accuracy_score(
@@ -1071,15 +980,17 @@ tree_pipeline_acc = accuracy_score(
     tree_pipeline_preds
 )
 
+print("\nRandom Forest Pipeline")
+
+print("Manual Random Forest Accuracy:", rf_acc)
+print("Pipeline Random Forest Accuracy:", tree_pipeline_acc)
 
 print(
-    f"\nBest Tree Pipeline: "
-    f"{best_tree_name}"
-)
-
-print(
-    "Pipeline Accuracy:",
-    tree_pipeline_acc
+    "Results Match:",
+    np.isclose(
+        rf_acc,
+        tree_pipeline_acc
+    )
 )
 
 print(
@@ -1089,142 +1000,59 @@ print(
     )
 )
 
-
-# --- Best Non-Tree Pipeline ---
-
-non_tree_names = [
-    "KNN Unscaled",
-    "KNN Scaled",
-    "KNN PCA",
-    "Logistic Regression Scaled",
-    "Logistic Regression PCA"
-]
-
-best_non_tree_name = max(
-    non_tree_names,
-    key=lambda name: cv_results[name]
-)
+# Same model and data as the
+# manual Random Forest, so its accuracy should match the earlier result.
+# Random Forest does not require scaling or PCA, so the pipeline only
+# needs the classifier step.
 
 
-if best_non_tree_name == "KNN Unscaled":
+# --- Task 5: Non-Tree Pipeline ---
 
-    non_tree_pipeline = Pipeline([
-        (
-            "classifier",
-            KNeighborsClassifier(
-                n_neighbors=5
-            )
+non_tree_pipeline = Pipeline([
+    ("scaler", StandardScaler()),
+    ("pca", PCA(n_components=n)),
+    (
+        "classifier",
+        LogisticRegression(
+            C=1.0,
+            max_iter=1000,
+            solver="liblinear"
         )
-    ])
-
-
-elif best_non_tree_name == "KNN Scaled":
-
-    non_tree_pipeline = Pipeline([
-        (
-            "scaler",
-            StandardScaler()
-        ),
-        (
-            "classifier",
-            KNeighborsClassifier(
-                n_neighbors=5
-            )
-        )
-    ])
-
-
-elif best_non_tree_name == "KNN PCA":
-
-    non_tree_pipeline = Pipeline([
-        (
-            "scaler",
-            StandardScaler()
-        ),
-        (
-            "pca",
-            PCA(
-                n_components=n
-            )
-        ),
-        (
-            "classifier",
-            KNeighborsClassifier(
-                n_neighbors=5
-            )
-        )
-    ])
-
-
-elif best_non_tree_name == "Logistic Regression PCA":
-
-    non_tree_pipeline = Pipeline([
-        (
-            "scaler",
-            StandardScaler()
-        ),
-        (
-            "pca",
-            PCA(
-                n_components=n
-            )
-        ),
-        (
-            "classifier",
-            LogisticRegression(
-                C=1.0,
-                max_iter=1000,
-                solver="liblinear"
-            )
-        )
-    ])
-
-
-else:
-
-    non_tree_pipeline = Pipeline([
-        (
-            "scaler",
-            StandardScaler()
-        ),
-        (
-            "classifier",
-            LogisticRegression(
-                C=1.0,
-                max_iter=1000,
-                solver="liblinear"
-            )
-        )
-    ])
-
+    )
+])
 
 non_tree_pipeline.fit(
     X_train,
     y_train
 )
 
-non_tree_pipeline_preds = (
-    non_tree_pipeline.predict(
-        X_test
-    )
+non_tree_pipeline_preds = non_tree_pipeline.predict(
+    X_test
 )
 
-non_tree_pipeline_acc = (
-    accuracy_score(
-        y_test,
-        non_tree_pipeline_preds
-    )
+non_tree_pipeline_acc = accuracy_score(
+    y_test,
+    non_tree_pipeline_preds
 )
 
+print("\nLogistic Regression PCA Pipeline")
 
 print(
-    f"\nBest Non-Tree Pipeline: "
-    f"{best_non_tree_name}"
+    "Manual Logistic Regression PCA Accuracy:",
+    lr_pca_acc
 )
 
 print(
-    "Pipeline Accuracy:",
+    "Pipeline Logistic Regression PCA Accuracy:",
     non_tree_pipeline_acc
+)
+
+print(
+    "Results Match:",
+    np.isclose(
+        lr_pca_acc,
+        non_tree_pipeline_acc
+    )
 )
 
 print(
@@ -1234,20 +1062,13 @@ print(
     )
 )
 
-
-# The pipeline results should match or be extremely close to the manual
-# versions because the pipeline performs the same preprocessing steps
-# and classifier training in the correct order.
+# Logistic Regression approach: scaling, PCA, and then classification.
+# Because the same preprocessing and classifier are being used, the
+# pipeline result should match or be close to the manual result.
 #
-# If PCA was the better version during cross-validation, the final
-# non-tree pipeline includes both StandardScaler and PCA.
-#
-# If PCA was not better, the pipeline leaves PCA out rather than using
-# dimensionality reduction when it does not improve the model.
-#
-# Pipelines make the workflow easier to maintain because scaling,
-# PCA, and classification are kept together. They also help prevent
-# accidentally preprocessing training and test data differently.
+# Even if PCA does not improve Logistic Regression accuracy, this pipeline
+# still demonstrates how PCA preprocessing can be included correctly
+# before the classifier.
 
 
 # --- Final Summary ---
