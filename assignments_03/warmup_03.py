@@ -253,8 +253,8 @@ for c in c_values:
         y_train
     )
 
-    # Get the coefficients from each fitted
-    # Logistic Regression model inside OneVsRestClassifier.
+    # Collect the fitted coefficient arrays from each
+    # Logistic Regression estimator inside OneVsRestClassifier.
     total_coefs = []
 
     for estimator in ovr_model.estimators_:
@@ -262,37 +262,33 @@ for c in c_values:
             estimator.coef_
         )
 
-    # Combine all class coefficient arrays.
+    # Combine all fitted coefficients into one array.
     total_coefs_array = np.vstack(
         total_coefs
     )
 
-    # Find the total size of all coefficients
-    # using the sum of their absolute values.
-    total_coefficient_size = np.sum(
+    # Total coefficient magnitude =
+    # sum of the absolute values of all fitted coefficients.
+    total_coefficient_magnitude = np.sum(
         np.abs(total_coefs_array)
     )
 
     print(
         f"C = {c} | "
-        f"Total coefficient size = "
-        f"{total_coefficient_size:.4f}"
+        f"Sum of absolute fitted coefficients = "
+        f"{total_coefficient_magnitude:.4f}"
     )
 
 
-# Each OneVsRestClassifier contains one fitted Logistic Regression
-# estimator for each class, so I collect the coefficients from all
-# of those estimators before calculating their total size.
+# For each C value, the printed coefficient magnitude is calculated
+# by taking the absolute value of every fitted coefficient from all
+# OneVsRest Logistic Regression estimators and then summing them.
 #
-# The total coefficient size is the sum of the absolute values of
-# every coefficient across all three class classifiers.
+# Smaller C means stronger regularization, which usually keeps the
+# fitted coefficient magnitudes smaller.
 #
-# A smaller C means stronger regularization, which restricts the
-# coefficients more and usually results in a smaller total size.
-#
-# A larger C means weaker regularization, allowing the coefficients
-# to become larger. The three printed values show how coefficient
-# magnitude changes as C increases.
+# Larger C means weaker regularization, which allows the fitted
+# coefficients to become larger.
 # --- Digits Setup ---
 
 digits = load_digits()
