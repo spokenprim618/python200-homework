@@ -244,14 +244,13 @@ lr_001.fit(
     y_train
 )
 
-coef_total_001 = sum(
-    np.abs(model.coef_).sum()
-    for model in lr_001.estimators_
-)
+coef_total_001 = np.abs(
+    lr_001.coef_
+).sum()
 
 print(
     "C = 0.01 | "
-    "Total coefficient magnitude =",
+    "Total coefficient size =",
     coef_total_001
 )
 
@@ -269,14 +268,13 @@ lr_1.fit(
     y_train
 )
 
-coef_total_1 = sum(
-    np.abs(model.coef_).sum()
-    for model in lr_1.estimators_
-)
+coef_total_1 = np.abs(
+    lr_1.coef_
+).sum()
 
 print(
     "C = 1.0 | "
-    "Total coefficient magnitude =",
+    "Total coefficient size =",
     coef_total_1
 )
 
@@ -294,14 +292,13 @@ lr_100.fit(
     y_train
 )
 
-coef_total_100 = sum(
-    np.abs(model.coef_).sum()
-    for model in lr_100.estimators_
-)
+coef_total_100 = np.abs(
+    lr_100.coef_
+).sum()
 
 print(
     "C = 100 | "
-    "Total coefficient magnitude =",
+    "Total coefficient size =",
     coef_total_100
 )
 
@@ -463,14 +460,10 @@ print(
     components_80
 )
 
-print(
-    f"The cumulative variance curve reaches 80% at about "
-    f"{components_80} principal components."
-)
-
-# The printed value above is the point where the cumulative explained
-# variance curve first reaches the 80% threshold. Therefore, approximately
-# that many principal components are needed to explain 80% of the variance.
+# Looking at the cumulative explained variance curve, it first reaches
+# the 80% threshold at about 13 principal components.
+# Therefore, approximately 13 components are needed to explain
+# 80% of the total variance.
 
 # --- PCA Q4 ---
 print("\n=== PCA Q4 ===")
@@ -496,8 +489,11 @@ def reconstruct_digit(
     )
 
 
-# Use the first 5 samples in X_digits/images exactly as requested.
-sample_indices = list(range(5))
+# Get one example each of digits 0-4.
+sample_indices = [
+    np.where(y_digits == digit)[0][0]
+    for digit in range(5)
+]
 
 component_values = [
     2,
@@ -514,7 +510,7 @@ component_values = [
 # n = 40
 #
 # 5 columns:
-# the first 5 samples from X_digits/images.
+# one example each of digits 0-4.
 
 fig, axes = plt.subplots(
     5,
