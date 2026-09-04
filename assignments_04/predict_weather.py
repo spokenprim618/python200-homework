@@ -34,6 +34,15 @@ new_days = pd.DataFrame(
     columns=feature_names,
 )
 
+day_names = [
+    "Clearly Good Day 1",
+    "Clearly Good Day 2",
+    "Borderline Day",
+    "Rainy Day",
+    "Very Windy Day",
+    "Cold Day",
+]
+
 probs = model.predict_proba(new_days)[:, 1]
 preds = model.predict(new_days)
 
@@ -42,7 +51,11 @@ for i in range(len(new_days)):
 
     label = "good" if preds[i] == 1 else "skip"
 
-    print(f"\nDay {i + 1}")
+    print(
+        f"\nDay {i + 1}: "
+        f"{day_names[i]}"
+    )
+
     print(f"temperature_2m_max: {row['temperature_2m_max']}")
     print(f"temperature_2m_min: {row['temperature_2m_min']}")
     print(f"precipitation_sum: {row['precipitation_sum']}")
@@ -52,6 +65,39 @@ for i in range(len(new_days)):
 
 # Task 3
 
-# The probability for borderline was 0.0062. It seems very confident no. I would want the model to still state not to run to be safe
-# The model would not be found and this should be stated so the user understands the order of operations in the error or have a main runner file to avoid this
-# Instead of making fake days, real current days will be fed to be classified by the model
+# Q1
+# I used Day 3 as my borderline case. Its predicted probability was about
+# 0.0062 in my run, so despite designing the weather values to be near some
+# of my label boundaries, the model itself was very confident that this
+# should be a "skip" day.
+#
+# A probability such as 0.52 would be very different because it is only
+# slightly above the default 0.50 threshold. I would describe that result
+# as uncertain rather than strongly recommending a run. In a real app I
+# would probably communicate that uncertainty to the user or use a higher
+# recommendation threshold if I wanted to avoid unsafe recommendations.
+
+
+# Q2
+# If predict_weather.py is run before train_weather_classifier.py, the
+# model and metadata files may not exist yet. joblib.load() or open() would
+# then raise a file-not-found error before any prediction could be made.
+#
+# I could make this more helpful by checking whether both files exist first
+# and raising a clear message such as: "Weather model not found. Run
+# train_weather_classifier.py before predict_weather.py." A main runner
+# script could also make sure training happens before prediction when a
+# model has not been created yet.
+
+
+# Q3
+# For daily production use, I would replace the manually constructed
+# hypothetical days with tomorrow's real weather forecast from a weather
+# API. The prediction script would need to request the same four features
+# used during training and put them into a DataFrame with exactly the same
+# feature names and order stored in the metadata.
+#
+# The trained Pipeline could then predict tomorrow's class and probability
+# without retraining the model every day. The script could also be
+# scheduled to run automatically each day and send or display the resulting
+# recommendation to the user.
