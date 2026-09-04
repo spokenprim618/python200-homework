@@ -949,13 +949,21 @@ best_cv_model = max(
 
 print("\nBest Cross-Validated Model:", best_cv_model)
 
-# All classifiers from Task 3 are tested again using 5-fold
-# cross-validation. Comparing the mean accuracies gives a more reliable
-# comparison than using only one train/test split. The standard deviation
-# also shows how consistent each model is across the folds.
+# These are the same seven classifier/preprocessing combinations tested
+# in Task 3. Each one is now evaluated using 5-fold cross-validation.
+#
+# I compare their mean CV accuracy to see which performs best across
+# several different validation splits instead of relying on one test split.
+#
+# I also compare their standard deviations. A smaller standard deviation
+# means the model's performance was more consistent between folds.
+#
+# The best cross-validated model may not be the same as the best model
+# from the single test split because cross-validation evaluates the model
+# across several different partitions of the training data.
 
 
-# --- Task 5: Tree Pipeline ---
+# --- Task 5: Pipelines ---
 
 # Find the best tree-based model from cross-validation.
 
@@ -968,6 +976,7 @@ best_tree_name = max(
     tree_model_names,
     key=lambda name: cv_results[name]
 )
+
 
 # Find the best non-tree-based model from cross-validation.
 
@@ -984,11 +993,202 @@ best_non_tree_name = max(
     key=lambda name: cv_results[name]
 )
 
-print("Best Tree-Based CV Model:", best_tree_name)
+
+print("\nBest Tree-Based CV Model:", best_tree_name)
 print("Best Non-Tree CV Model:", best_non_tree_name)
 
-# These are chosen using the mean 5-fold cross-validation accuracy.
-# This is more reliable than choosing them from only one test split.
+
+# --- Best Tree Pipeline ---
+
+if best_tree_name == "Random Forest":
+
+    tree_pipeline = Pipeline([
+        (
+            "classifier",
+            RandomForestClassifier(
+                random_state=42
+            )
+        )
+    ])
+
+else:
+
+    tree_pipeline = Pipeline([
+        (
+            "classifier",
+            DecisionTreeClassifier(
+                max_depth=best_tree_depth,
+                random_state=42
+            )
+        )
+    ])
+
+
+tree_pipeline.fit(
+    X_train,
+    y_train
+)
+
+tree_pipeline_preds = tree_pipeline.predict(
+    X_test
+)
+
+tree_pipeline_acc = accuracy_score(
+    y_test,
+    tree_pipeline_preds
+)
+
+
+print(
+    "\nBEST TREE PIPELINE:",
+    best_tree_name
+)
+
+print(
+    "Accuracy:",
+    tree_pipeline_acc
+)
+
+print(
+    classification_report(
+        y_test,
+        tree_pipeline_preds
+    )
+)
+
+
+# The best tree-based classifier is selected using mean cross-validation
+# accuracy. Tree models do not require scaling because they make splits
+# based on feature thresholds instead of distances.
+
+
+# --- Best Non-Tree Pipeline ---
+
+if best_non_tree_name == "KNN Unscaled":
+
+    non_tree_pipeline = Pipeline([
+        (
+            "classifier",
+            KNeighborsClassifier(
+                n_neighbors=5
+            )
+        )
+    ])
+
+elif best_non_tree_name == "KNN Scaled":
+
+    non_tree_pipeline = Pipeline([
+        (
+            "scaler",
+            StandardScaler()
+        ),
+        (
+            "classifier",
+            KNeighborsClassifier(
+                n_neighbors=5
+            )
+        )
+    ])
+
+elif best_non_tree_name == "KNN PCA":
+
+    non_tree_pipeline = Pipeline([
+        (
+            "scaler",
+            StandardScaler()
+        ),
+        (
+            "pca",
+            PCA(
+                n_components=n
+            )
+        ),
+        (
+            "classifier",
+            KNeighborsClassifier(
+                n_neighbors=5
+            )
+        )
+    ])
+
+elif best_non_tree_name == "Logistic Regression Scaled":
+
+    non_tree_pipeline = Pipeline([
+        (
+            "scaler",
+            StandardScaler()
+        ),
+        (
+            "classifier",
+            LogisticRegression(
+                C=1.0,
+                max_iter=1000,
+                solver="liblinear"
+            )
+        )
+    ])
+
+else:
+
+    non_tree_pipeline = Pipeline([
+        (
+            "scaler",
+            StandardScaler()
+        ),
+        (
+            "pca",
+            PCA(
+                n_components=n
+            )
+        ),
+        (
+            "classifier",
+            LogisticRegression(
+                C=1.0,
+                max_iter=1000,
+                solver="liblinear"
+            )
+        )
+    ])
+
+
+non_tree_pipeline.fit(
+    X_train,
+    y_train
+)
+
+non_tree_pipeline_preds = non_tree_pipeline.predict(
+    X_test
+)
+
+non_tree_pipeline_acc = accuracy_score(
+    y_test,
+    non_tree_pipeline_preds
+)
+
+
+print(
+    "\nBEST NON-TREE PIPELINE:",
+    best_non_tree_name
+)
+
+print(
+    "Accuracy:",
+    non_tree_pipeline_acc
+)
+
+print(
+    classification_report(
+        y_test,
+        non_tree_pipeline_preds
+    )
+)
+
+
+# The best non-tree classifier is also selected using mean
+# cross-validation accuracy. The pipeline includes whatever
+# preprocessing that version used earlier in Task 3.
+
 
 # --- Final Summary ---
 
@@ -1015,7 +1215,6 @@ print(
     "Best Test Model:",
     best_model_name
 )
-
 
 if lr_pca_acc > lr_scaled_acc:
     print("PCA improved Logistic Regression accuracy on this test split.")
