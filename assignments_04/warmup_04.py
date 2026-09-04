@@ -95,16 +95,29 @@ print(
 )
 
 
-# KNN is trained on scaled data because it uses distances between
-# samples. Scaling prevents features with larger numerical ranges
-# from having too much influence on those distances.
+# Logistic Regression and KNN are compared using AUC because AUC measures
+# how well each model separates the positive and negative classes across
+# all possible classification thresholds.
 #
-# The model with the higher AUC separates the two classes better
-# across different classification thresholds.
+# I compare the two AUC values printed above. The model with the higher
+# AUC provides better overall separation between the two classes and is
+# therefore the stronger classifier independently of any single threshold.
+#
+# KNN is trained on scaled data because it depends on distances between
+# samples. Scaling prevents features with larger numerical ranges from
+# having too much influence on those distance calculations.
 
 # ROC Q2
-# KNN has the fewest false positives so chose KNN for this
-log_fpr_2, log_tpr_2, _ = roc_curve(y_test, log_pred_1[:, 1])
+# I compare the FPR values printed above at the point where each model
+# reaches a TPR of approximately 0.80.
+#
+# The model with the lower FPR at that point would be preferable if the
+# goal were to correctly identify about 80% of the positive cases while
+# creating as few false alarms as possible.
+#
+# Therefore, whichever model has the lower printed FPR would produce
+# fewer false positives while maintaining roughly 80% recall for the
+# positive class.log_fpr_2, log_tpr_2, _ = roc_curve(y_test, log_pred_1[:, 1])
 knn_fpr_2, knn_tpr_2, _ = roc_curve(y_test, knn_pred_1[:, 1])
 
 plt.figure(figsize=(8, 6))
@@ -125,8 +138,18 @@ print(f"Log @ TPR≈0.80 -> FPR={log_fpr_2[log_idx_2]:.4f}, TPR={log_tpr_2[log_i
 print(f"Knn @ TPR≈0.80 -> FPR={knn_fpr_2[knn_idx_2]:.4f}, TPR={knn_tpr_2[knn_idx_2]:.4f}")
 
 # ROC Q3
-# This increased both TPR and FPR. It would be used to be more lenient with positives but as seen also increases FPR
-
+# The threshold printed above is the threshold that produced the highest
+# F1 score among the thresholds returned by roc_curve().
+#
+# I compare that optimal threshold with the default classification
+# threshold of 0.50. If the optimal threshold is below 0.50, the model
+# becomes more willing to classify observations as positive. This usually
+# increases recall, although it may also increase the false positive rate.
+#
+# In a real application, I would choose a threshold below 0.50 when
+# missing a true positive is more costly than creating a false positive.
+# Examples include medical screening, fraud detection, or another system
+# where catching as many positive cases as possible is especially important.
 log_fpr_3, log_tpr_3, log_thresholds_3 = roc_curve(y_test, log_pred_1[:, 1])
 
 best_f1_3 = -1
@@ -154,8 +177,16 @@ print(f"F1: {best_f1_3:.4f}")
 # GridSearch
 
 # GridSearch Q1
-# I did't it picked 100 and it increased by around .06
-
+# Logistic Regression uses C=1.0 by default, so I compare the best C found
+# by GridSearchCV with that default value.
+#
+# If the best C printed above is different from 1.0, then the grid search
+# found a different amount of regularization than the default setting.
+#
+# I compare log_test_auc_1 with log_default_auc_1 to measure how much the
+# tuned model changed test AUC compared with the default C=1.0 model.
+# A small difference would suggest that tuning C had only a limited effect,
+# while a larger difference would show that tuning was useful.
 log_reg_pipe_1 = Pipeline(
     [
         ("scaler", StandardScaler()),
@@ -205,8 +236,16 @@ log_default_auc_1 = roc_auc_score(
 
 
 # GridSearch Q2
-# The KNN CV AUC is better than logistic but not better than the test. I would take KNN farther. I would consider why with CV AUC got slightly worse and what does my goal need.
-
+# I compare the best Logistic Regression AUC from GridSearch Q1 with the
+# best Decision Tree AUC printed above.
+#
+# Based on AUC alone, I would continue developing the model with the
+# higher AUC because it separates the two classes more effectively.
+#
+# However, AUC would not be my only consideration. I would also compare
+# precision, recall, model stability across validation folds, the types
+# of errors each model makes, interpretability, and how well the model
+# performs on new test data.
 tree_clas_pipe_2 = Pipeline(
     [
         ("scaler", StandardScaler()),
@@ -242,8 +281,15 @@ print(f"Test AUC: {tree_test_auc_2:.4f}")
 
 
 # GridSearch Q3
-# I would pick the mean with the smallest STD as it would make my model less impacted by variance
-
+# I compare parameter values that have similar mean CV AUC scores but
+# different standard deviations.
+#
+# If two settings have nearly the same mean AUC, I would usually prefer
+# the one with the smaller standard deviation because its performance
+# changes less across the validation folds.
+#
+# That suggests the model is more stable and less dependent on one
+# particular split of the training data.
 log_results_3 = pd.DataFrame(log_grid_1.cv_results_)
 
 log_summary_3 = log_results_3[
@@ -261,8 +307,17 @@ print(log_summary_3.to_string(index=False))
 # joblib
 
 # joblib Q1
-# THe model will be impacted by the varience of not being scaled making it unreliable
-
+# The saved object is the entire Pipeline, so it contains both the fitted
+# StandardScaler and the fitted Logistic Regression model.
+#
+# If I saved only the Logistic Regression classifier, the loaded model
+# would no longer automatically apply the same scaling learned during
+# training. Passing the raw X_test data directly into that classifier
+# would therefore give it data in a different representation from the
+# data it was trained on, which could change the predictions.
+#
+# Saving the Pipeline prevents this because the exact preprocessing and
+# model are preserved together.
 joblib.dump(log_reg_best_1, "models/warmup_model.pkl")
 
 loaded_log_reg_1 = joblib.load("models/warmup_model.pkl")
@@ -276,8 +331,14 @@ print("Predictions match. Model saved and loaded successfully.")
 
 
 # joblib Q2
-# I expect to predict the probability to be somewhere in the middle because of the pos and neg numbers around it
-
+# The third sample contains zeros for every feature.
+# I would expect its probability to be relatively close to the model's
+# baseline decision region because none of its feature values strongly
+# push the observation in either direction.
+#
+# The exact prediction still depends on the intercept and coefficients
+# learned by Logistic Regression, so I cannot know the exact class or
+# probability without running the fitted model.
 loaded_log_reg_2 = joblib.load("models/warmup_model.pkl")
 
  # --- Simulated prediction script ---
