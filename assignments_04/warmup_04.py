@@ -32,28 +32,75 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # ROC and AUC
-
 # ROC Q1
-#KNN is way better the seperation is almost perfect and has the highest AUC
 
-log_reg_1 = LogisticRegression(max_iter=1000, random_state=42)
+scaler_1 = StandardScaler()
 
-log_reg_1.fit(X_train,y_train)
+X_train_scaled_1 = scaler_1.fit_transform(
+    X_train
+)
 
-knn_clas_1 = KNeighborsClassifier(n_neighbors=5)
+X_test_scaled_1 = scaler_1.transform(
+    X_test
+)
 
-knn_clas_1.fit(X_train,y_train)
 
-log_pred_1 = log_reg_1.predict_proba(X_test)
-print(f"Log prob: {log_pred_1}")
-knn_pred_1 = knn_clas_1.predict_proba(X_test)
-print(f"knn prob: {knn_pred_1}")
+log_reg_1 = LogisticRegression(
+    max_iter=1000,
+    random_state=42
+)
 
-log_auc = roc_auc_score(y_test, log_pred_1[:, 1])
-print(f"Log auc: {log_auc}")
+log_reg_1.fit(
+    X_train,
+    y_train
+)
 
-knn_auc= roc_auc_score(y_test, knn_pred_1[:, 1])
-print(f"Knn auc: {knn_auc}")
+
+knn_clas_1 = KNeighborsClassifier(
+    n_neighbors=5
+)
+
+knn_clas_1.fit(
+    X_train_scaled_1,
+    y_train
+)
+
+
+log_pred_1 = log_reg_1.predict_proba(
+    X_test
+)
+
+knn_pred_1 = knn_clas_1.predict_proba(
+    X_test_scaled_1
+)
+
+
+log_auc = roc_auc_score(
+    y_test,
+    log_pred_1[:, 1]
+)
+
+knn_auc = roc_auc_score(
+    y_test,
+    knn_pred_1[:, 1]
+)
+
+
+print(
+    f"Logistic Regression AUC: {log_auc:.4f}"
+)
+
+print(
+    f"KNN AUC: {knn_auc:.4f}"
+)
+
+
+# KNN is trained on scaled data because it uses distances between
+# samples. Scaling prevents features with larger numerical ranges
+# from having too much influence on those distances.
+#
+# The model with the higher AUC separates the two classes better
+# across different classification thresholds.
 
 # ROC Q2
 # KNN has the fewest false positives so chose KNN for this
