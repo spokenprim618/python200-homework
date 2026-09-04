@@ -656,7 +656,7 @@ top_10_rf = rf_importances.head(
 
 
 plt.figure(
-    figsize=(10, 6)
+    figsize=(8, 6)
 )
 
 plt.barh(
@@ -665,22 +665,15 @@ plt.barh(
 )
 
 plt.xlabel(
-    "Random Forest Feature Importance"
+    "Feature Importance"
 )
 
 plt.ylabel(
-    "Spambase Feature"
+    "Feature"
 )
 
 plt.title(
     "Top 10 Random Forest Feature Importances"
-)
-
-# Keep the original feature names visible and give the longer labels
-# more room so the chart is easy to read.
-plt.tick_params(
-    axis="y",
-    labelsize=9
 )
 
 plt.tight_layout()
@@ -1423,42 +1416,8 @@ print(
     best_model_name
 )
 
-print(
-    "\nFINAL LOGISTIC REGRESSION COMPARISON"
-)
-
-print(
-    "Scaled Logistic Regression:",
-    f"{lr_scaled_acc:.4f}"
-)
-
-print(
-    "PCA-Reduced Logistic Regression:",
-    f"{lr_pca_acc:.4f}"
-)
-
-if lr_pca_acc > lr_scaled_acc:
-    print(
-        "The PCA-reduced Logistic Regression performed better "
-        "than the scaled version on the test set."
-    )
-elif lr_pca_acc < lr_scaled_acc:
-    print(
-        "The scaled Logistic Regression performed better "
-        "than the PCA-reduced version on the test set."
-    )
-else:
-    print(
-        "The scaled and PCA-reduced Logistic Regression models "
-        "had the same test accuracy."
-    )
-
-# The assignment asks for Logistic Regression on scaled data and again
-# on PCA-reduced data. An additional unscaled Logistic Regression model
-# is not part of this requested comparison.
-#
-# The two required Logistic Regression versions are shown directly above
-# so the final summary clearly reflects their specific comparison.
+# Logistic Regression PCA vs. non-PCA was compared directly in the
+# Task 3 model comparison section.
 #
 # Decision Tree vs. Random Forest feature overlap was also compared
 # directly in the Task 3 feature-importance section.
