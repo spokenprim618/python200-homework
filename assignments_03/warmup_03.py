@@ -238,22 +238,40 @@ c_values = [
 
 for c in c_values:
 
-    model = OneVsRestClassifier(
-        LogisticRegression(
-            C=c,
-            max_iter=1000,
-            solver="liblinear"
-        )
+    base_clf = LogisticRegression(
+        C=c,
+        max_iter=1000,
+        solver="liblinear"
     )
 
-    model.fit(
+    ovr_model = OneVsRestClassifier(
+        base_clf
+    )
+
+    ovr_model.fit(
         X_train_scaled,
         y_train
     )
 
-    total_coefficient_size = np.abs(
-        model.coef_
-    ).sum()
+    # Get the coefficients from each fitted
+    # Logistic Regression model inside OneVsRestClassifier.
+    total_coefs = []
+
+    for estimator in ovr_model.estimators_:
+        total_coefs.append(
+            estimator.coef_
+        )
+
+    # Combine all class coefficient arrays.
+    total_coefs_array = np.vstack(
+        total_coefs
+    )
+
+    # Find the total size of all coefficients
+    # using the sum of their absolute values.
+    total_coefficient_size = np.sum(
+        np.abs(total_coefs_array)
+    )
 
     print(
         f"C = {c} | "
@@ -262,34 +280,19 @@ for c in c_values:
     )
 
 
-# C controls the strength of regularization.
+# Each OneVsRestClassifier contains one fitted Logistic Regression
+# estimator for each class, so I collect the coefficients from all
+# of those estimators before calculating their total size.
 #
-# A smaller C means stronger regularization, so the model is more
-# restricted and the total coefficient magnitude tends to be smaller.
-#
-# A larger C means weaker regularization, which allows the model to
-# use larger coefficient values.
-#
-# The three values printed above show how the total size of the
-# coefficients changes as C increases.
-
-    # OneVsRestClassifier fits one Logistic Regression model for
-    # each class. Combine the coefficient arrays from those fitted
-    # models so the total coefficient size can be calculated using
-    # the exact expression requested in the assignment.
-
-
-# C controls the strength of regularization.
+# The total coefficient size is the sum of the absolute values of
+# every coefficient across all three class classifiers.
 #
 # A smaller C means stronger regularization, which restricts the
-# coefficients more and usually produces a smaller total coefficient
-# magnitude.
+# coefficients more and usually results in a smaller total size.
 #
-# A larger C means weaker regularization, so the model is allowed to
-# use larger coefficients to fit the training data.
-#
-# Comparing the three printed totals shows how coefficient magnitude
-# changes as regularization becomes weaker.
+# A larger C means weaker regularization, allowing the coefficients
+# to become larger. The three printed values show how coefficient
+# magnitude changes as C increases.
 # --- Digits Setup ---
 
 digits = load_digits()
