@@ -295,17 +295,17 @@ X_train_scaled,
 y_train
 )
 
-Accessing coefficients
+# Accessing coefficients
 
 total_coefs_100 = []
 for lr_100 in lr_100.estimators_:
-total_coefs_100.append(lr_100.coef_)
+    total_coefs_100.append(lr_100.coef_)
 
-Convert list of arrays into a single array
+# Convert list of arrays into a single array
 
 total_coefs_array_100 = np.vstack(total_coefs_100)  # Shape: (n_classes, n_features)
 
-Compute total coefficient size
+# Compute total coefficient size
 
 total_l1_size_100 = np.sum(np.abs(total_coefs_array_100))
 
