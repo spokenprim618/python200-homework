@@ -251,15 +251,6 @@ for c in c_values:
         y_train
     )
 
-    # OneVsRestClassifier fits one Logistic Regression model for
-    # each class. Combine the coefficient arrays from those fitted
-    # models so the total coefficient size can be calculated using
-    # the exact expression requested in the assignment.
-    model.coef_ = np.vstack([
-        estimator.coef_
-        for estimator in model.estimators_
-    ])
-
     total_coefficient_size = np.abs(
         model.coef_
     ).sum()
@@ -269,6 +260,23 @@ for c in c_values:
         f"Total coefficient size = "
         f"{total_coefficient_size:.4f}"
     )
+
+
+# C controls the strength of regularization.
+#
+# A smaller C means stronger regularization, so the model is more
+# restricted and the total coefficient magnitude tends to be smaller.
+#
+# A larger C means weaker regularization, which allows the model to
+# use larger coefficient values.
+#
+# The three values printed above show how the total size of the
+# coefficients changes as C increases.
+
+    # OneVsRestClassifier fits one Logistic Regression model for
+    # each class. Combine the coefficient arrays from those fitted
+    # models so the total coefficient size can be calculated using
+    # the exact expression requested in the assignment.
 
 
 # C controls the strength of regularization.
