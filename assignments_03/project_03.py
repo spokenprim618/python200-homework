@@ -867,6 +867,7 @@ else:
 
 print("\nTASK 4 - CROSS VALIDATION")
 
+cv_results = {}
 models = {
     "KNN Unscaled": KNeighborsClassifier(
         n_neighbors=5
@@ -879,12 +880,12 @@ models = {
 
     "KNN PCA": Pipeline([
         ("scaler", StandardScaler()),
-        ("pca", PCA(n_components=n)),
+        ("pca", PCA(n_components=0.90)),
         ("classifier", KNeighborsClassifier(n_neighbors=5))
     ]),
 
     "Decision Tree": DecisionTreeClassifier(
-        max_depth=best_tree_depth,
+        max_depth=5,
         random_state=42
     ),
 
@@ -906,7 +907,7 @@ models = {
 
     "Logistic Regression PCA": Pipeline([
         ("scaler", StandardScaler()),
-        ("pca", PCA(n_components=n)),
+        ("pca", PCA(n_components=0.90)),
         (
             "classifier",
             LogisticRegression(
@@ -918,9 +919,6 @@ models = {
     ])
 }
 
-
-cv_results = {}
-
 for name, classifier in models.items():
 
     scores = cross_val_score(
@@ -931,7 +929,10 @@ for name, classifier in models.items():
         scoring="accuracy"
     )
 
-    cv_results[name] = scores.mean()
+    cv_results[name] = {
+        "mean": scores.mean(),
+        "std": scores.std()
+    }
 
     print(f"\n{name}")
 
@@ -944,10 +945,29 @@ for name, classifier in models.items():
 
 best_cv_model = max(
     cv_results,
-    key=cv_results.get
+    key=lambda name: cv_results[name]["mean"]
 )
 
-print("\nBest Cross-Validated Model:", best_cv_model)
+most_stable_model = min(
+    cv_results,
+    key=lambda name: cv_results[name]["std"]
+)
+
+print(
+    "\nMost Accurate Model:",
+    best_cv_model,
+    f"({cv_results[best_cv_model]['mean']:.4f})"
+)
+
+print(
+    "Most Stable Model:",
+    most_stable_model,
+    f"(std={cv_results[most_stable_model]['std']:.4f})"
+)
+
+# The model with the highest mean CV accuracy is the most accurate overall.
+# The model with the lowest standard deviation is the most stable because
+# its accuracy changes the least between folds.
 
 # These are the same seven classifier/preprocessing combinations tested
 # in Task 3. Each one is now evaluated using 5-fold cross-validation.
@@ -974,8 +994,9 @@ tree_model_names = [
 
 best_tree_name = max(
     tree_model_names,
-    key=lambda name: cv_results[name]
+    key=lambda name: cv_results[name]["mean"]
 )
+
 
 
 # Find the best non-tree-based model from cross-validation.
@@ -990,7 +1011,7 @@ non_tree_model_names = [
 
 best_non_tree_name = max(
     non_tree_model_names,
-    key=lambda name: cv_results[name]
+    key=lambda name: cv_results[name]["mean"]
 )
 
 
@@ -1231,6 +1252,33 @@ else:
     print("PCA made no difference to Logistic Regression accuracy on this test split.")
     pass
 
+
+tree_top_features = set(
+    tree_importances.head(10).index
+)
+
+rf_top_features = set(
+    rf_importances.head(10).index
+)
+
+common_features = (
+    tree_top_features
+    .intersection(rf_top_features)
+)
+
+print(
+    "\nFeatures in both top 10 lists:",
+    common_features
+)
+
+# The Decision Tree and Random Forest agree on some of the most important
+# features when those features appear in both top 10 lists.
+#
+# They do not have to rank every feature the same way because the Decision
+# Tree gets its importance from one tree, while the Random Forest averages
+# importance across many different trees.
+
+
 # Scaling changed KNN because KNN depends on distances between features.
 # PCA changed the result again by replacing the original features with
 # lower-dimensional principal components.
@@ -1240,3 +1288,34 @@ else:
 # false positive sends a real email to spam and could cause the user to miss
 # something important.
 
+# The two pipelines are different because the classifiers have different
+# preprocessing needs.
+#
+# Tree-based models do not depend on feature distances, so scaling is not
+# needed.
+#
+# KNN and Logistic Regression can be affected by feature scale, so their
+# pipelines include StandardScaler when that preprocessing was used.
+#
+# If the selected non-tree model used PCA earlier, PCA is included here too
+# so the pipeline matches the same preprocessing/model combination.
+
+
+manual_tree_accuracy = results[best_tree_name]
+manual_non_tree_accuracy = results[best_non_tree_name]
+
+print(
+    "Tree Pipeline Matches Earlier Result:",
+    np.isclose(
+        tree_pipeline_acc,
+        manual_tree_accuracy
+    )
+)
+
+print(
+    "Non-Tree Pipeline Matches Earlier Result:",
+    np.isclose(
+        non_tree_pipeline_acc,
+        manual_non_tree_accuracy
+    )
+)
