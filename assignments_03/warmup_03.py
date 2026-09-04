@@ -231,13 +231,7 @@ print(
 
 # --- Logistic Regression Q1 ---
 
-lr_001 = OneVsRestClassifier(
-    LogisticRegression(
-        C=0.01,
-        max_iter=1000,
-        solver="liblinear"
-    )
-)
+lr_001 = OneVsRestClassifier(LogisticRegression(C=0.01, max_iter=1000,solver="liblinear"))
 
 lr_001.fit(
     X_train_scaled,
@@ -255,13 +249,7 @@ print(
 )
 
 
-lr_1 = OneVsRestClassifier(
-    LogisticRegression(
-        C=1.0,
-        max_iter=1000,
-        solver="liblinear"
-    )
-)
+lr_1 = OneVsRestClassifier(LogisticRegression(C=1.0, max_iter=1000,solver="liblinear"))
 
 lr_1.fit(
     X_train_scaled,
@@ -279,13 +267,7 @@ print(
 )
 
 
-lr_100 = OneVsRestClassifier(
-    LogisticRegression(
-        C=100,
-        max_iter=1000,
-        solver="liblinear"
-    )
-)
+lr_100 = OneVsRestClassifier(LogisticRegression( C=100,max_iter=1000,solver="liblinear"))
 
 lr_100.fit(
     X_train_scaled,
