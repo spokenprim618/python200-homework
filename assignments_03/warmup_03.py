@@ -228,67 +228,104 @@ print(
 # Scaling would not normally change a Decision Tree because trees
 # split features using thresholds rather than measuring distances.
 
-# --- Logistic Regression Q1 ---
+--- Logistic Regression Q1 ---
 
-c_values = [
-    0.01,
-    1.0,
-    100
-]
+lr1 = LogisticRegression(C=0.01, max_iter=1000,solver="liblinear")
+lr_001 = OneVsRestClassifier(lr1)
 
-for c in c_values:
+lr_001.fit(
+X_train_scaled,
+y_train
+)
 
-    base_clf = LogisticRegression(
-        C=c,
-        max_iter=1000,
-        solver="liblinear"
-    )
+Accessing coefficients
 
-    ovr_model = OneVsRestClassifier(
-        base_clf
-    )
+total_coefs_001 = []
+for lr_001 in lr_001.estimators_:
+total_coefs_001.append(lr_001.coef_)
 
-    ovr_model.fit(
-        X_train_scaled,
-        y_train
-    )
+Convert list of arrays into a single array
 
-    # Collect the fitted coefficient arrays from each
-    # Logistic Regression estimator inside OneVsRestClassifier.
-    total_coefs = []
+total_coefs_array_001 = np.vstack(total_coefs_001)  # Shape: (n_classes, n_features)
 
-    for estimator in ovr_model.estimators_:
-        total_coefs.append(
-            estimator.coef_
-        )
+Compute total coefficient size
 
-    # Combine all fitted coefficients into one array.
-    total_coefs_array = np.vstack(
-        total_coefs
-    )
+total_l1_size_001 = np.sum(np.abs(total_coefs_array_001))
 
-    # Total coefficient magnitude =
-    # sum of the absolute values of all fitted coefficients.
-    total_coefficient_magnitude = np.sum(
-        np.abs(total_coefs_array)
-    )
+print(
+"C = 0.01 | "
+"Total coefficient size =",
+total_l1_size_001
+)
+lr2 = LogisticRegression(C=1.0, max_iter=1000,solver="liblinear")
+lr_1 = OneVsRestClassifier(lr2)
 
-    print(
-        f"C = {c} | "
-        f"Sum of absolute fitted coefficients = "
-        f"{total_coefficient_magnitude:.4f}"
-    )
+lr_1.fit(
+X_train_scaled,
+y_train
+)
+
+Accessing coefficients
+
+total_coefs_1 = []
+for lr_1 in lr_1.estimators_:
+total_coefs_1.append(lr_1.coef_)
+
+Convert list of arrays into a single array
+
+total_coefs_array_1 = np.vstack(total_coefs_1)  # Shape: (n_classes, n_features)
+
+Compute total coefficient size
+
+total_l1_size_1 = np.sum(np.abs(total_coefs_array_1))
 
 
-# For each C value, the printed coefficient magnitude is calculated
-# by taking the absolute value of every fitted coefficient from all
-# OneVsRest Logistic Regression estimators and then summing them.
-#
-# Smaller C means stronger regularization, which usually keeps the
-# fitted coefficient magnitudes smaller.
-#
-# Larger C means weaker regularization, which allows the fitted
-# coefficients to become larger.
+
+print(
+"C = 1.0 | "
+"Total coefficient size =",
+total_l1_size_1
+)
+
+lr3 = LogisticRegression( C=100,max_iter=1000,solver="liblinear")
+lr_100 = OneVsRestClassifier(lr3)
+
+lr_100.fit(
+X_train_scaled,
+y_train
+)
+
+Accessing coefficients
+
+total_coefs_100 = []
+for lr_100 in lr_100.estimators_:
+total_coefs_100.append(lr_100.coef_)
+
+Convert list of arrays into a single array
+
+total_coefs_array_100 = np.vstack(total_coefs_100)  # Shape: (n_classes, n_features)
+
+Compute total coefficient size
+
+total_l1_size_100 = np.sum(np.abs(total_coefs_array_100))
+
+print(
+"C = 100 | "
+"Total coefficient size =",
+total_l1_size_100
+)
+
+
+
+Smaller C means stronger regularization, which should make the
+
+coefficients smaller.
+
+
+
+Larger C means weaker regularization, which allows the coefficients
+
+to become larger.
 # --- Digits Setup ---
 
 digits = load_digits()
