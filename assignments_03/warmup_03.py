@@ -237,22 +237,32 @@ c_values = [
 ]
 
 for c in c_values:
-    lr =  LogisticRegression(
+
+    model = OneVsRestClassifier(
+        LogisticRegression(
             C=c,
             max_iter=1000,
             solver="liblinear"
         )
-    ovr_model = OneVsRestClassifier(lr)
+    )
 
-    ovr_model.fit(
+    model.fit(
         X_train_scaled,
         y_train
     )
 
-    total_coefficient_size = sum(
-        np.abs(model.coef_).sum()
-        for model in ovr_model.estimators_
-    )
+    # OneVsRestClassifier fits one Logistic Regression model for
+    # each class. Combine the coefficient arrays from those fitted
+    # models so the total coefficient size can be calculated using
+    # the exact expression requested in the assignment.
+    model.coef_ = np.vstack([
+        estimator.coef_
+        for estimator in model.estimators_
+    ])
+
+    total_coefficient_size = np.abs(
+        model.coef_
+    ).sum()
 
     print(
         f"C = {c} | "
@@ -261,12 +271,17 @@ for c in c_values:
     )
 
 
-# Smaller C means stronger regularization, which keeps
-# the coefficient magnitudes smaller.
+# C controls the strength of regularization.
 #
-# Larger C means weaker regularization, which allows
-# the coefficient magnitudes to become larger.
-
+# A smaller C means stronger regularization, which restricts the
+# coefficients more and usually produces a smaller total coefficient
+# magnitude.
+#
+# A larger C means weaker regularization, so the model is allowed to
+# use larger coefficients to fit the training data.
+#
+# Comparing the three printed totals shows how coefficient magnitude
+# changes as regularization becomes weaker.
 # --- Digits Setup ---
 
 digits = load_digits()
@@ -373,6 +388,12 @@ cumulative_variance = np.cumsum(
     pca.explained_variance_ratio_
 )
 
+components_80 = (
+    np.argmax(
+        cumulative_variance >= 0.80
+    ) + 1
+)
+
 plt.figure(
     figsize=(8, 5)
 )
@@ -383,6 +404,11 @@ plt.plot(
         len(cumulative_variance) + 1
     ),
     cumulative_variance
+)
+
+plt.axhline(
+    0.80,
+    linestyle="--"
 )
 
 plt.xlabel(
@@ -407,21 +433,20 @@ plt.savefig(
 )
 
 plt.close()
-components_80 = (
-    np.argmax(
-        cumulative_variance >= 0.80
-    ) + 1
-)
 
 print(
-    "Components needed for 80% variance:",
+    "Approximate number of components needed "
+    "to explain at least 80% of the variance:",
     components_80
 )
 
-# Looking at the cumulative explained variance curve, it first reaches
-# the 80% threshold at about 13 principal components.
-# Therefore, approximately 13 components are needed to explain
-# 80% of the total variance.
+
+# The cumulative explained variance curve first reaches the 80%
+# threshold at the number of components printed above.
+#
+# Therefore, that printed value is approximately how many principal
+# components are needed to retain at least 80% of the total variation
+# in the original 64-dimensional digit data.
 
 # --- PCA Q4 ---
 print("\n=== PCA Q4 ===")
