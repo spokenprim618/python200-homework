@@ -957,119 +957,38 @@ print("\nBest Cross-Validated Model:", best_cv_model)
 
 # --- Task 5: Tree Pipeline ---
 
-tree_pipeline = Pipeline([
-    (
-        "classifier",
-        RandomForestClassifier(
-            random_state=42
-        )
-    )
-])
+# Find the best tree-based model from cross-validation.
 
-tree_pipeline.fit(
-    X_train,
-    y_train
+tree_model_names = [
+    "Decision Tree",
+    "Random Forest"
+]
+
+best_tree_name = max(
+    tree_model_names,
+    key=lambda name: cv_results[name]
 )
 
-tree_pipeline_preds = tree_pipeline.predict(
-    X_test
+# Find the best non-tree-based model from cross-validation.
+
+non_tree_model_names = [
+    "KNN Unscaled",
+    "KNN Scaled",
+    "KNN PCA",
+    "Logistic Regression Scaled",
+    "Logistic Regression PCA"
+]
+
+best_non_tree_name = max(
+    non_tree_model_names,
+    key=lambda name: cv_results[name]
 )
 
-tree_pipeline_acc = accuracy_score(
-    y_test,
-    tree_pipeline_preds
-)
+print("Best Tree-Based CV Model:", best_tree_name)
+print("Best Non-Tree CV Model:", best_non_tree_name)
 
-print("\nRandom Forest Pipeline")
-
-print("Manual Random Forest Accuracy:", rf_acc)
-print("Pipeline Random Forest Accuracy:", tree_pipeline_acc)
-
-print(
-    "Results Match:",
-    np.isclose(
-        rf_acc,
-        tree_pipeline_acc
-    )
-)
-
-print(
-    classification_report(
-        y_test,
-        tree_pipeline_preds
-    )
-)
-
-# Same model and data as the
-# manual Random Forest, so its accuracy should match the earlier result.
-# Random Forest does not require scaling or PCA, so the pipeline only
-# needs the classifier step.
-
-
-# --- Task 5: Non-Tree Pipeline ---
-
-non_tree_pipeline = Pipeline([
-    ("scaler", StandardScaler()),
-    ("pca", PCA(n_components=n)),
-    (
-        "classifier",
-        LogisticRegression(
-            C=1.0,
-            max_iter=1000,
-            solver="liblinear"
-        )
-    )
-])
-
-non_tree_pipeline.fit(
-    X_train,
-    y_train
-)
-
-non_tree_pipeline_preds = non_tree_pipeline.predict(
-    X_test
-)
-
-non_tree_pipeline_acc = accuracy_score(
-    y_test,
-    non_tree_pipeline_preds
-)
-
-print("\nLogistic Regression PCA Pipeline")
-
-print(
-    "Manual Logistic Regression PCA Accuracy:",
-    lr_pca_acc
-)
-
-print(
-    "Pipeline Logistic Regression PCA Accuracy:",
-    non_tree_pipeline_acc
-)
-
-print(
-    "Results Match:",
-    np.isclose(
-        lr_pca_acc,
-        non_tree_pipeline_acc
-    )
-)
-
-print(
-    classification_report(
-        y_test,
-        non_tree_pipeline_preds
-    )
-)
-
-# Logistic Regression approach: scaling, PCA, and then classification.
-# Because the same preprocessing and classifier are being used, the
-# pipeline result should match or be close to the manual result.
-#
-# Even if PCA does not improve Logistic Regression accuracy, this pipeline
-# still demonstrates how PCA preprocessing can be included correctly
-# before the classifier.
-
+# These are chosen using the mean 5-fold cross-validation accuracy.
+# This is more reliable than choosing them from only one test split.
 
 # --- Final Summary ---
 
@@ -1098,25 +1017,27 @@ print(
 )
 
 
-# Overall, the models show that preprocessing affects different
-# classifiers differently.
-#
-# KNN is sensitive to feature scale because it uses distances, so
-# comparing unscaled, scaled, and PCA versions shows how preprocessing
-# changes its performance.
-#
-# Logistic Regression also benefits from scaling. PCA may improve or
-# reduce its accuracy depending on whether the reduced components keep
-# the information most useful for separating spam from ham.
-#
-# Decision Trees and Random Forests do not require scaling because they
-# make threshold-based splits rather than distance calculations.
-#
-# Random Forest tends to perform strongly because many different trees
-# are combined, which usually gives a more stable classifier than one
-# Decision Tree.
-#
-# The confusion matrix tells us which kind of mistake the best model
-# makes more often. False positives are ham emails incorrectly marked
-# as spam, while false negatives are spam emails incorrectly allowed
-# through as ham.
+if lr_pca_acc > lr_scaled_acc:
+    print("PCA improved Logistic Regression accuracy on this test split.")
+    # This is what passed there was a difference
+    # Reducing the dimensions may have removed some redundant or noisy information overall increasing accuracy.
+    pass
+
+elif lr_pca_acc < lr_scaled_acc:
+    print("PCA reduced Logistic Regression accuracy on this test split.")
+    # Some useful predictive information may have been lost during PCA.
+    pass
+
+else:
+    print("PCA made no difference to Logistic Regression accuracy on this test split.")
+    pass
+
+# Scaling changed KNN because KNN depends on distances between features.
+# PCA changed the result again by replacing the original features with
+# lower-dimensional principal components.
+
+# For spam filtering, I would prefer more false negatives over false positives.
+# A false negative allows some spam into the inbox, which is annoying, but a
+# false positive sends a real email to spam and could cause the user to miss
+# something important.
+
