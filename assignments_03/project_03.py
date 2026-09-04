@@ -210,10 +210,21 @@ n = (
 ).argmax() + 1
 
 print(
-    "\nPCA Components Needed "
-    "for 90% Variance:",
+    "\nNumber of PCA components needed "
+    "to reach at least 90% cumulative variance:",
     n
 )
+
+
+# n is the first number of principal components where the cumulative
+# explained variance reaches or exceeds 90%.
+#
+# I keep X_train_scaled and X_test_scaled because some classifiers
+# are evaluated using all of the scaled features.
+#
+# I also create X_train_pca and X_test_pca using only the first n
+# principal components so I can compare the full scaled feature set
+# with the reduced PCA representation.
 
 
 plt.figure(
@@ -681,18 +692,21 @@ plt.tight_layout()
 plt.savefig(
     os.path.join(
         "outputs",
-        "random_forest_feature_importances.png"
+        "feature_importances.png"
     )
 )
 
 plt.close()
 
-# Feature importance tells us which variables the tree-based models
-# relied on most when making splits.
+# This bar chart shows the 10 features with the highest Random Forest
+# feature-importance values.
 #
-# Random Forest importance is useful because it combines information
-# across many trees instead of depending on one individual tree.
-
+# Random Forest calculates importance across many trees, so these
+# values represent which features were most useful for making splits
+# across the entire ensemble.
+#
+# The figure is saved as outputs/feature_importances.png exactly as
+# required by the assignment.
 
 # --- Logistic Regression: Scaled ---
 
@@ -880,6 +894,23 @@ print(
 
 # --- Best Model Confusion Matrix ---
 
+print(
+    "\nBEST-PERFORMING CLASSIFIER:",
+    best_model_name
+)
+
+print(
+    "Test Accuracy:",
+    f"{results[best_model_name]:.4f}"
+)
+
+
+# best_model_name was selected from the Task 3 comparison using the
+# highest test-set accuracy.
+#
+# The predictions below are therefore specifically from that
+# best-performing classifier.
+
 prediction_lookup = {
     "KNN Unscaled":
         knn_unscaled_preds,
@@ -903,11 +934,9 @@ prediction_lookup = {
         lr_pca_preds
 }
 
-
 best_preds = prediction_lookup[
     best_model_name
 ]
-
 
 cm = confusion_matrix(
     y_test,
@@ -944,7 +973,8 @@ plt.close()
 
 
 print(
-    "\nBest Model Error Counts"
+    f"\nERROR ANALYSIS FOR BEST MODEL: "
+    f"{best_model_name}"
 )
 
 print(
@@ -963,34 +993,38 @@ print(
 if fp > fn:
 
     print(
-        "The model makes more "
-        "false positives."
+        f"{best_model_name} makes more false positives "
+        f"({fp}) than false negatives ({fn})."
     )
 
 elif fn > fp:
 
     print(
-        "The model makes more "
-        "false negatives."
+        f"{best_model_name} makes more false negatives "
+        f"({fn}) than false positives ({fp})."
     )
 
 else:
 
     print(
-        "The model makes the same "
-        "number of each error."
+        f"{best_model_name} makes the same number of "
+        f"false positives and false negatives ({fp})."
     )
 
 
-# A false positive means a real ham email is incorrectly sent to spam.
-# A false negative means a spam email gets through as ham.
+# This error analysis belongs specifically to the best-performing
+# classifier selected from the Task 3 test-set comparison.
 #
-# I would be especially concerned about false positives because an
-# important real email could be hidden in the spam folder.
+# A false positive means a legitimate ham email was incorrectly
+# classified as spam. A false negative means a spam email was
+# incorrectly classified as legitimate ham.
 #
-# However, false negatives also matter because allowing too much spam
-# through defeats the purpose of the classifier.
-
+# The printed counts above directly show which type of error occurs
+# more often for the selected best model.
+#
+# For a spam filter, I would be more concerned about false positives
+# because a legitimate and potentially important email could be moved
+# into the spam folder and missed by the user.
 
 # --- Task 4: Cross Validation ---
 
