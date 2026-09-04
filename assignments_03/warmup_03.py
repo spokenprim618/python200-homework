@@ -231,8 +231,6 @@ print(
 
 # --- Logistic Regression Q1 ---
 
-print("\n=== Logistic Regression Q1 ===")
-
 lr_001 = OneVsRestClassifier(
     LogisticRegression(
         C=0.01,
@@ -241,15 +239,20 @@ lr_001 = OneVsRestClassifier(
     )
 )
 
-lr_001.fit(X_train_scaled, y_train)
-
-coef_total_001 = sum(
-    np.abs(model.coef_).sum()
-    for model in lr_001.estimators_
+lr_001.fit(
+    X_train_scaled,
+    y_train
 )
 
-print("C = 0.01")
-print("Total coefficient magnitude:", coef_total_001)
+coef_total_001 = np.abs(
+    lr_001.coef_
+).sum()
+
+print(
+    "C = 0.01 | "
+    "Total coefficient size =",
+    coef_total_001
+)
 
 
 lr_1 = OneVsRestClassifier(
@@ -260,15 +263,20 @@ lr_1 = OneVsRestClassifier(
     )
 )
 
-lr_1.fit(X_train_scaled, y_train)
-
-coef_total_1 = sum(
-    np.abs(model.coef_).sum()
-    for model in lr_1.estimators_
+lr_1.fit(
+    X_train_scaled,
+    y_train
 )
 
-print("\nC = 1.0")
-print("Total coefficient magnitude:", coef_total_1)
+coef_total_1 = np.abs(
+    lr_1.coef_
+).sum()
+
+print(
+    "C = 1.0 | "
+    "Total coefficient size =",
+    coef_total_1
+)
 
 
 lr_100 = OneVsRestClassifier(
@@ -279,23 +287,27 @@ lr_100 = OneVsRestClassifier(
     )
 )
 
-lr_100.fit(X_train_scaled, y_train)
-
-coef_total_100 = sum(
-    np.abs(model.coef_).sum()
-    for model in lr_100.estimators_
+lr_100.fit(
+    X_train_scaled,
+    y_train
 )
 
-print("\nC = 100")
-print("Total coefficient magnitude:", coef_total_100)
+coef_total_100 = np.abs(
+    lr_100.coef_
+).sum()
 
-# OneVsRestClassifier creates one Logistic Regression model for each
-# Iris class against all of the other classes.
+print(
+    "C = 100 | "
+    "Total coefficient size =",
+    coef_total_100
+)
+
+
+# Smaller C means stronger regularization, which should make the
+# coefficients smaller.
 #
-# Smaller C means stronger regularization, so the coefficients are
-# pushed closer to zero.
-#
-# Larger C means weaker regularization, so larger coefficients are allowed.
+# Larger C means weaker regularization, which allows the coefficients
+# to become larger.
 
 # --- Digits Setup ---
 
@@ -437,15 +449,23 @@ plt.savefig(
 )
 
 plt.close()
+components_80 = (
+    np.argmax(
+        cumulative_variance >= 0.80
+    ) + 1
+)
 
-# The first several components capture a large amount of the
-# variation in the 64 original pixel features.
-# After 13 components, 80% of the variation
-# has already been captured.
+print(
+    "Components needed for 80% variance:",
+    components_80
+)
 
+# Looking at the cumulative explained variance curve, it first reaches
+# the 80% threshold at about 13 principal components.
+# Therefore, approximately 13 components are needed to explain
+# 80% of the total variance.
 
 # --- PCA Q4 ---
-
 print("\n=== PCA Q4 ===")
 
 
@@ -455,11 +475,9 @@ def reconstruct_digit(
     pca,
     n_components
 ):
-
     reconstruction = pca.mean_.copy()
 
     for i in range(n_components):
-
         reconstruction += (
             scores[sample_idx, i]
             * pca.components_[i]
@@ -486,10 +504,10 @@ component_values = [
 
 # 5 rows:
 # Original
-# 2 PCs
-# 5 PCs
-# 15 PCs
-# 40 PCs
+# n = 2
+# n = 5
+# n = 15
+# n = 40
 #
 # 5 columns:
 # one example each of digits 0-4.
@@ -547,8 +565,10 @@ for row, n_components in enumerate(
 
         axes[row, col].axis("off")
 
+    # Clearly label each reconstruction row
+    # with the number of PCA components used.
     axes[row, 0].set_ylabel(
-        f"{n_components} PCs"
+        f"n = {n_components}"
     )
 
 
@@ -571,14 +591,27 @@ print(
     "Saved PCA reconstruction figure."
 )
 
+
+# The top row shows the original digit images.
+#
+# The rows below show reconstructions using n = 2, 5, 15, and 40
+# principal components.
+#
 # With only 2 components, the digits are recognizable only in a
 # very rough way.
 #
-# At 5 components more of the general digit shape appears.
+# At 5 components, more of the general digit shape appears.
 #
-# At 15 components the digits become much clearer.
+# At 15 components, the digits become much clearer.
 #
-# At 40 components the reconstruction is very close to the original.
+# At 40 components, the reconstruction is very close to the original.
+#
+# This matches the cumulative explained variance curve because using
+# more principal components preserves more of the original variation.
+#
+# The large improvement by around 15 components also makes sense because
+# the cumulative variance curve shows that much of the total variance
+# has already been captured by that point.
 #
 # This shows that PCA can represent much of the original 64-dimensional
 # pixel information using fewer dimensions.
