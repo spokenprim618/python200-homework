@@ -350,9 +350,12 @@ plt.savefig(
 plt.close()
 
 
-# n is the first number of principal components where the
-# cumulative explained variance reaches or exceeds 90%.
-
+# The cumulative explained variance first reaches 90% at 43 principal
+# components.
+#
+# Therefore, X_train_pca and X_test_pca keep the first 43 components
+# instead of all 57 original features while preserving at least 90%
+# of the variance in the scaled training data.
 
 # --- Task 2.3: PCA Transform ---
 
@@ -504,34 +507,16 @@ print(
 )
 
 
-if knn_scaled_acc > knn_pca_acc:
-
-    print(
-        "Scaled KNN performed better than PCA KNN."
-    )
-
-elif knn_pca_acc > knn_scaled_acc:
-
-    print(
-        "PCA KNN performed better than scaled KNN."
-    )
-
-else:
-
-    print(
-        "Scaled KNN and PCA KNN had the same accuracy."
-    )
-
-
-# This directly compares KNN using all scaled features with KNN
-# using the PCA-reduced features.
+# Scaled KNN achieved 0.9077 accuracy, while PCA KNN achieved 0.9066.
 #
-# If PCA performs worse, reducing the dimensions removed some
-# useful classification information.
+# PCA therefore reduced KNN accuracy very slightly by about 0.0011.
+# The difference is extremely small, so reducing the data to 43 principal
+# components preserved almost all of KNN's predictive performance, but it
+# did not improve the model on this test split.
 #
-# If PCA performs better, the reduced representation may have
-# removed redundant information that was hurting distance calculations.
-
+# Scaling itself had a much larger effect: unscaled KNN scored only
+# 0.7991 compared with 0.9077 after scaling. This supports the idea that
+# feature scale matters strongly for KNN because it uses distance.
 
 # --- Task 3.1: Decision Tree Depth Comparison ---
 
@@ -606,17 +591,18 @@ print(
 )
 
 
-# As depth increases, training accuracy generally increases because
-# the tree can create more detailed rules for the training examples.
+# Training accuracy increased from 0.8965 at depth 3 to 0.9997 with
+# no depth limit. Test accuracy also increased, but much more slowly:
+# from 0.8849 at depth 3 to 0.9110 with no depth limit.
 #
-# If training accuracy continues increasing while test accuracy stops
-# improving or decreases, the deeper tree is overfitting.
+# The nearly perfect 0.9997 training accuracy for the unlimited tree
+# shows that it is fitting the training data extremely closely, which
+# is a sign of overfitting.
 #
-# I use the depth printed above because it produced the highest test
-# accuracy among the required depths. This gives stronger performance
-# on unseen data instead of selecting the tree only because it fits
-# the training data more closely.
-
+# I selected max_depth=None because it still produced the highest test
+# accuracy, 0.9110, among the required choices. However, depth 10 was
+# very close at 0.9088 while having a smaller train/test gap, so depth
+# 10 would also be a reasonable more conservative production choice.
 
 # --- Final Decision Tree ---
 
@@ -790,38 +776,16 @@ print(
     lr_pca_acc
 )
 
-
-if lr_scaled_acc > lr_pca_acc:
-
-    print(
-        "Scaled Logistic Regression performed "
-        "better than PCA Logistic Regression."
-    )
-
-elif lr_pca_acc > lr_scaled_acc:
-
-    print(
-        "PCA Logistic Regression performed "
-        "better than scaled Logistic Regression."
-    )
-
-else:
-
-    print(
-        "Scaled and PCA Logistic Regression "
-        "had the same accuracy."
-    )
-
-
-# This directly compares Logistic Regression using all scaled
-# features with Logistic Regression using the PCA-reduced features.
+# Scaled Logistic Regression achieved 0.9294 accuracy, while PCA
+# Logistic Regression achieved 0.9186.
 #
-# If PCA performs worse, dimensionality reduction removed some
-# information that was useful for predicting spam.
+# PCA therefore reduced Logistic Regression accuracy by about 0.0109.
+# For this model, keeping all of the scaled features worked better than
+# reducing them to the 43 PCA components.
 #
-# If PCA performs better, the reduced components may have removed
-# redundant information while preserving the most useful variation.
-
+# This suggests PCA removed some information that was still useful for
+# separating spam from ham, even though those 43 components preserved
+# at least 90% of the overall variance.
 
 # --- Task 3.2: Classifier Comparison ---
 
@@ -879,22 +843,25 @@ print(
 )
 
 
-# The classifier printed above as the best-performing classifier
-# has the highest test accuracy in this comparison.
+# Random Forest performed best overall on the test set with an accuracy
+# of 0.9446. The next best model was scaled Logistic Regression at 0.9294.
 #
-# For KNN and Logistic Regression, the scaled and PCA accuracies
-# printed above directly show whether PCA helped or hurt each model.
-# This lets me compare the PCA result with the Task 2 idea that PCA
-# may remove redundant dimensions but can also remove useful information.
+# Scaling strongly improved KNN: accuracy increased from 0.7991 unscaled
+# to 0.9077 scaled.
 #
-# For a spam filter, I would not use accuracy as the only metric.
-# I would rather minimize false positives than false negatives.
+# PCA did not improve either of the non-tree models. KNN decreased
+# slightly from 0.9077 to 0.9066 after PCA, while Logistic Regression
+# decreased from 0.9294 to 0.9186.
 #
-# A false positive sends a legitimate email to the spam folder,
-# which could cause the user to miss something important.
-# A false negative allows spam into the inbox, which is annoying,
-# but it is usually less costly than hiding a legitimate email.
-
+# Therefore, PCA preserved most of the predictive information but did
+# not improve classification performance for either KNN or Logistic
+# Regression in this experiment.
+#
+# For a spam filter, I would not optimize accuracy alone. I would rather
+# minimize false positives because a false positive sends a legitimate
+# email to spam, where the user may miss something important. A false
+# negative lets spam into the inbox, which is inconvenient but usually
+# less costly than hiding a legitimate message.
 
 # --- Task 3.3: Best Model Confusion Matrix ---
 
@@ -979,38 +946,19 @@ print(
 )
 
 
-if fp > fn:
-
-    print(
-        "The best-performing classifier makes "
-        "more false positives than false negatives."
-    )
-
-elif fn > fp:
-
-    print(
-        "The best-performing classifier makes "
-        "more false negatives than false positives."
-    )
-
-else:
-
-    print(
-        "The best-performing classifier makes "
-        "the same number of false positives "
-        "and false negatives."
-    )
-
-
-# This confusion matrix uses predictions from the classifier that
-# had the highest test accuracy in Task 3.2.
+# Random Forest was the best-performing classifier with test accuracy
+# 0.9446, so this confusion matrix analyzes its errors specifically.
 #
-# The printed false-positive and false-negative counts directly
-# identify which error the best-performing classifier makes more often.
+# It produced 18 false positives, where ham emails were incorrectly
+# classified as spam, and 33 false negatives, where spam emails were
+# incorrectly classified as ham.
 #
-# For this spam-filtering problem, false positives are the error I
-# would be more concerned about because they hide legitimate email.
-
+# Therefore, the Random Forest makes more false negatives than false
+# positives: 33 compared with 18.
+#
+# Even though false negatives occurred more often, I would still consider
+# false positives the more costly error for this application because they
+# can hide legitimate email from the user.
 
 # --- Task 3.4: Decision Tree Feature Importances ---
 
@@ -1112,21 +1060,21 @@ plt.savefig(
 
 plt.close()
 
-
-# The common_features output shows which features both the
-# Decision Tree and Random Forest place in their top 10.
-# Those shared features are where the two models most clearly
-# agree about what is important for identifying spam.
+# The Decision Tree and Random Forest share 7 features in their top 10:
+# capital_run_length_total, word_freq_hp, char_freq_!,
+# capital_run_length_average, char_freq_$, word_freq_remove,
+# and word_freq_free.
 #
-# The lists do not have to be identical because the Decision Tree
-# calculates importance from one tree, while the Random Forest
-# averages importance across 100 trees.
+# This shows substantial agreement between the two tree-based models
+# about which variables are useful for identifying spam.
 #
-# Features involving unusual punctuation, spam-related words,
-# and capitalization make sense as important features because
-# those are the types of characteristics a person might also
-# notice when deciding whether an email looks like spam.
-
+# char_freq_$ is the most important Decision Tree feature, while
+# char_freq_! is the most important Random Forest feature.
+#
+# These results match the intuition behind spam detection because
+# unusual punctuation, words such as "free" and "remove", and unusual
+# capitalization patterns are all characteristics that can distinguish
+# spam emails from normal messages.
 
 # --- Task 4.1: Cross-Validation ---
 
@@ -1299,18 +1247,18 @@ print(
     best_model_name
 )
 
-
-# The most accurate cross-validated model is the model printed above
-# with the highest mean score across the five folds.
+# Random Forest had the highest mean cross-validation accuracy at 0.9541,
+# so it was the most accurate model across the five folds.
 #
-# The most stable model is the one with the lowest standard deviation,
-# meaning its accuracy changed the least across the five folds.
+# Logistic Regression PCA had the lowest reported standard deviation at
+# about 0.0077, making it the most stable model across the folds.
 #
-# Comparing best_cv_model with best_model_name shows whether the model
-# ranked first in cross-validation also ranked first on the original
-# train/test split. A difference would show why cross-validation gives
-# a more reliable comparison than relying on only one split.
-
+# Random Forest also had the highest accuracy on the original test split
+# at 0.9446. Therefore, both the single train/test comparison and the
+# cross-validation comparison ranked Random Forest first.
+#
+# This strengthens the evidence that Random Forest is the best classifier
+# tested here because its advantage was not limited to one test split.
 
 # --- Task 5.1: Best Tree-Based Pipeline ---
 
@@ -1399,13 +1347,13 @@ print(
 )
 
 
-# The tree pipeline uses the same configuration as the matching
-# tree-based classifier from Task 3.
+# Random Forest was the best tree-based model, so its pipeline contains
+# only the RandomForestClassifier.
 #
-# It does not include StandardScaler or PCA because neither the
-# Decision Tree nor Random Forest used those preprocessing steps
-# in the earlier manual approach.
-
+# StandardScaler and PCA are not included because the Random Forest was
+# trained on the original unscaled features in Task 3. Tree-based models
+# split individual features at thresholds and therefore do not require
+# distance-based scaling.
 
 # --- Task 5.1: Best Non-Tree Pipeline ---
 
@@ -1524,16 +1472,14 @@ print(
     )
 )
 
-
-# The non-tree pipeline uses exactly the preprocessing steps that
-# belonged to that same model in Task 3.
+# Scaled Logistic Regression was the best non-tree model, so this pipeline
+# contains StandardScaler followed by LogisticRegression.
 #
-# KNN Unscaled uses no preprocessing.
-# KNN Scaled uses StandardScaler.
-# KNN PCA uses StandardScaler followed by PCA.
-# Logistic Regression Scaled uses StandardScaler.
-# Logistic Regression PCA uses StandardScaler followed by PCA.
-
+# The scaler is necessary because this is the same preprocessing used by
+# the 0.9294 Logistic Regression model in Task 3.
+#
+# PCA is not included because PCA Logistic Regression performed worse,
+# scoring 0.9186 compared with 0.9294 for the full scaled version.
 
 manual_tree_preds = prediction_lookup[
     best_tree_name
@@ -1561,8 +1507,12 @@ print(
 )
 
 
-# The two True/False checks compare the pipeline predictions directly
-# with the predictions produced by the same models in Task 3.
+# Both pipeline comparison checks returned True.
 #
-# A value of True confirms that packaging the preprocessing and
-# classifier into a Pipeline reproduced the earlier manual approach.
+# This confirms that the Random Forest pipeline produced exactly the same
+# predictions as the earlier manual Random Forest, and the scaled Logistic
+# Regression pipeline produced exactly the same predictions as the earlier
+# manual scaled Logistic Regression.
+#
+# Therefore, the pipelines successfully reproduce the preprocessing and
+# classifier behavior from Task 3.

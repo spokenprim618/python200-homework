@@ -52,16 +52,19 @@ print("\n=== Preprocessing Q2 ===")
 
 scaler = StandardScaler()
 
-# Fit only on the training data so information from the test set
-# does not leak into the training process.
 X_train_scaled = scaler.fit_transform(X_train)
 
-# The test data uses the mean and standard deviation learned
-# from the training data.
-X_test_scaled = scaler.transform(X_test) # Scaling does importve performance and can more accurately descrive relationships between features on an even scale.
 
+X_test_scaled = scaler.transform(X_test) 
 print("Column means of X_train_scaled:")
 print(X_train_scaled.mean(axis=0))
+
+# StandardScaler is fit only on X_train so the mean and standard
+# deviation are learned without using any information from X_test.
+# X_test is then transformed using those same training statistics.
+#
+# The printed means of X_train_scaled should all be very close to 0,
+# which confirms that the training features were centered by the scaler.
 
 
 # --- KNN Q1 ---
@@ -97,10 +100,13 @@ acc_knn_scaled = accuracy_score(
 
 print("Scaled Accuracy:", acc_knn_scaled)
 
-# Scaling can improve KNN because KNN measures distance between points.
-# If one feature has much larger values than another feature, it could
-# have too much influence on the distance calculation.
-# Scaling puts the features on comparable scales.
+# Unscaled KNN had an accuracy of 1.0000, while scaled KNN had an
+# accuracy of 0.9333 on this test split.
+#
+# Therefore, scaling hurt KNN performance on this particular split.
+# Even though KNN is distance-based and scaling is often useful,
+# this result shows that scaling does not guarantee better accuracy
+# on every dataset or every train/test split.
 
 
 # --- KNN Q3 ---
@@ -120,11 +126,13 @@ for fold, score in enumerate(cv_scores, start=1):
 print(f"Mean CV Accuracy: {cv_scores.mean():.4f}")
 print(f"Standard Deviation: {cv_scores.std():.4f}")
 
-# Cross-validation tests the model on several different splits of the
-# training data. This gives a better idea of whether the model performs
-# consistently instead of depending on one split so it becomes more trust worthy the more runs you have that are consistent.
-
-
+# The single train/test split gave KNN an accuracy of 1.0000, while
+# 5-fold cross-validation produced a mean accuracy of 0.9750 with a
+# standard deviation of about 0.0333.
+#
+# I trust the cross-validation result more because it evaluates KNN
+# across five different validation folds instead of depending on one
+# especially favorable test split.
 # --- KNN Q4 ---
 
 print("\n=== KNN Q4 ===")
@@ -157,7 +165,13 @@ for k in k_values:
         best_k = k
 
 print("\nSuggested k:", best_k)
-# Running through tests of each K value this result here would be the proven to be 5 because after mean accuracy decreases
+
+# k=5 and k=7 both reached the highest mean cross-validation accuracy
+# of 0.9750.
+#
+# The code selects k=5 because it is the first value that reaches the
+# highest score. After k=7, the mean accuracy generally becomes slightly
+# lower, so k=5 is a reasonable choice from the tested values.
 
 # --- Classifier Evaluation Q1 ---
 
@@ -268,15 +282,14 @@ for c in c_values:
         f"{total_coefficient_magnitude:.4f}"
     )
 
+# For C=0.01, the sum of the absolute fitted coefficients is about 1.9649.
+# For C=1.0, it increases to about 12.4847.
+# For C=100, it increases again to about 37.8903.
+#
+# This shows a clear trend: as C increases, regularization becomes weaker
+# and the fitted Logistic Regression coefficients are allowed to become
+# much larger.
 
-# The printed value for each C is the sum of the absolute values
-# of all fitted coefficients across the OneVsRest classifiers.
-#
-# A smaller C means stronger regularization, which usually keeps
-# the coefficient magnitudes smaller.
-#
-# A larger C means weaker regularization, which allows the fitted
-# coefficients to become larger.
 # --- Digits Setup ---
 
 digits = load_digits()
@@ -436,12 +449,16 @@ print(
 )
 
 
-# The cumulative explained variance curve first reaches the 80%
-# threshold at the number of components printed above.
+# The cumulative explained variance first reaches 80% at 13 principal
+# components.
 #
-# Therefore, that printed value is approximately how many principal
-# components are needed to retain at least 80% of the total variation
-# in the original 64-dimensional digit data.
+# The curve rises quickly through the first several components and then
+# begins to level off around this region. After 13 components, each new
+# component adds a smaller amount of explained variance than the earlier
+# components.
+#
+# This means the first 13 components retain about 80% of the variation
+# from the original 64 pixel features while using far fewer dimensions.
 
 # --- PCA Q4 ---
 print("\n=== PCA Q4 ===")
@@ -570,26 +587,18 @@ print(
 )
 
 
-# The top row shows the original digit images.
+# With 2 components, the reconstructions are very rough because only
+# about 28.5% of the original variance is being preserved.
 #
-# The rows below show reconstructions using n = 2, 5, 15, and 40
-# principal components.
+# With 5 components, about 54.5% of the variance is preserved, so more
+# of the digit shape becomes visible.
 #
-# With only 2 components, the digits are recognizable only in a
-# very rough way.
+# With 15 components, about 83.5% of the variance is preserved and the
+# digits are much clearer. This is also just beyond the 13-component
+# point where the variance curve first reached 80%.
 #
-# At 5 components, more of the general digit shape appears.
+# With 40 components, about 98.8% of the variance is preserved, so the
+# reconstructed digits look very close to the originals.
 #
-# At 15 components, the digits become much clearer.
-#
-# At 40 components, the reconstruction is very close to the original.
-#
-# This matches the cumulative explained variance curve because using
-# more principal components preserves more of the original variation.
-#
-# The large improvement by around 15 components also makes sense because
-# the cumulative variance curve shows that much of the total variance
-# has already been captured by that point.
-#
-# This shows that PCA can represent much of the original 64-dimensional
-# pixel information using fewer dimensions.
+# This matches the explained-variance curve: most of the improvement
+# happens earlier, and later components add progressively smaller details.
