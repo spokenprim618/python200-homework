@@ -250,7 +250,7 @@ plt.tight_layout()
 plt.savefig(
     os.path.join(
         "outputs",
-        "pca_explained_variance.png"
+        "pca_variance_explained.png"
     )
 )
 
