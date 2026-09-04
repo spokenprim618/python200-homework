@@ -442,15 +442,55 @@ for depth in depths:
     )
 
 
-best_tree_depth = 5
+# Choose the depth from the results above instead of hard-coding it.
+# The highest test accuracy is preferred. If two depths tie, the
+# shallower tree is chosen because it is less complex and less likely
+# to overfit.
+depth_complexity = {
+    3: 3,
+    5: 5,
+    10: 10,
+    None: float("inf")
+}
 
-# I chose max_depth=5 because it provides a balance between training
-# and test performance. Deeper trees can continue improving training
-# accuracy while giving little or no improvement on the test data,
-# which can be a sign of overfitting.
+best_tree_depth = max(
+    depths,
+    key=lambda depth: (
+        tree_depth_results[depth][1],
+        -depth_complexity[depth]
+    )
+)
+
+selected_train_acc = tree_depth_results[
+    best_tree_depth
+][0]
+
+selected_test_acc = tree_depth_results[
+    best_tree_depth
+][1]
+
+print(
+    "\nSelected Decision Tree Depth:",
+    best_tree_depth
+)
+
+print(
+    "Selected Depth Training Accuracy:",
+    f"{selected_train_acc:.4f}"
+)
+
+print(
+    "Selected Depth Test Accuracy:",
+    f"{selected_test_acc:.4f}"
+)
+
+# The production depth is chosen directly from the depth comparison
+# printed above. I first use test accuracy because it shows how well
+# each depth generalizes to unseen data.
 #
-# A depth of 5 keeps the model simpler while still giving strong
-# test performance.
+# If two depths have the same test accuracy, I choose the shallower
+# one because a simpler tree is less likely to overfit. Deeper trees
+# can keep increasing training accuracy without improving test accuracy.
 
 
 tree = DecisionTreeClassifier(
@@ -560,6 +600,54 @@ print(
 print(
     rf_importances.head(10)
 )
+
+
+# Directly compare the top 10 features from both tree models.
+tree_top_features = set(
+    tree_importances.head(10).index
+)
+
+rf_top_features = set(
+    rf_importances.head(10).index
+)
+
+common_features = (
+    tree_top_features
+    .intersection(rf_top_features)
+)
+
+tree_only_features = (
+    tree_top_features
+    - rf_top_features
+)
+
+rf_only_features = (
+    rf_top_features
+    - tree_top_features
+)
+
+print(
+    "\nFeatures in both top 10 lists:",
+    common_features
+)
+
+print(
+    "Decision Tree-only top features:",
+    tree_only_features
+)
+
+print(
+    "Random Forest-only top features:",
+    rf_only_features
+)
+
+# The common_features output shows exactly where the Decision Tree and
+# Random Forest agree about which features matter most.
+#
+# The tree_only_features and rf_only_features outputs show where they
+# disagree. This is expected because the Decision Tree gets importance
+# from one tree, while the Random Forest averages importance across
+# many different trees.
 
 
 top_10_rf = rf_importances.head(
@@ -738,6 +826,47 @@ for name, score in results.items():
     )
 
 
+# Directly compare Logistic Regression with and without PCA.
+print(
+    "\nLOGISTIC REGRESSION COMPARISON"
+)
+
+print(
+    "Scaled Logistic Regression:",
+    f"{lr_scaled_acc:.4f}"
+)
+
+print(
+    "PCA Logistic Regression:",
+    f"{lr_pca_acc:.4f}"
+)
+
+if lr_pca_acc > lr_scaled_acc:
+
+    print(
+        "PCA improved Logistic Regression "
+        "on this test split."
+    )
+
+elif lr_pca_acc < lr_scaled_acc:
+
+    print(
+        "PCA reduced Logistic Regression "
+        "on this test split."
+    )
+
+else:
+
+    print(
+        "PCA made no difference to Logistic Regression "
+        "on this test split."
+    )
+
+# This comparison uses the two Logistic Regression results printed
+# above, so the PCA and non-PCA versions are directly compared in the
+# same final Task 3 classifier summary.
+
+
 best_model_name = max(
     results,
     key=results.get
@@ -868,6 +997,12 @@ else:
 print("\nTASK 4 - CROSS VALIDATION")
 
 cv_results = {}
+
+# Use the same seven classifier/preprocessing combinations from Task 3.
+# The scaled models include StandardScaler, and the PCA models include
+# both StandardScaler and the same number of PCA components, n, that
+# was selected in Task 3. The Decision Tree also uses the depth selected
+# from the Task 3 depth comparison.
 models = {
     "KNN Unscaled": KNeighborsClassifier(
         n_neighbors=5
@@ -880,12 +1015,12 @@ models = {
 
     "KNN PCA": Pipeline([
         ("scaler", StandardScaler()),
-        ("pca", PCA(n_components=0.90)),
+        ("pca", PCA(n_components=n)),
         ("classifier", KNeighborsClassifier(n_neighbors=5))
     ]),
 
     "Decision Tree": DecisionTreeClassifier(
-        max_depth=5,
+        max_depth=best_tree_depth,
         random_state=42
     ),
 
@@ -907,7 +1042,7 @@ models = {
 
     "Logistic Regression PCA": Pipeline([
         ("scaler", StandardScaler()),
-        ("pca", PCA(n_components=0.90)),
+        ("pca", PCA(n_components=n)),
         (
             "classifier",
             LogisticRegression(
@@ -1032,7 +1167,7 @@ if best_tree_name == "Random Forest":
         )
     ])
 
-else:
+elif best_tree_name == "Decision Tree":
 
     tree_pipeline = Pipeline([
         (
@@ -1043,6 +1178,25 @@ else:
             )
         )
     ])
+
+else:
+
+    raise ValueError(
+        "Unknown tree model: "
+        f"{best_tree_name}"
+    )
+
+
+# This pipeline exactly mirrors the Task 3 tree configuration.
+# Random Forest used the original unscaled features, and the final
+# Decision Tree used the selected best_tree_depth on the original
+# unscaled features. No scaling or PCA is added because Task 3 did
+# not use those steps for either tree model.
+
+print(
+    "Tree Pipeline Steps:",
+    list(tree_pipeline.named_steps.keys())
+)
 
 
 tree_pipeline.fit(
@@ -1149,7 +1303,7 @@ elif best_non_tree_name == "Logistic Regression Scaled":
         )
     ])
 
-else:
+elif best_non_tree_name == "Logistic Regression PCA":
 
     non_tree_pipeline = Pipeline([
         (
@@ -1171,6 +1325,28 @@ else:
             )
         )
     ])
+
+else:
+
+    raise ValueError(
+        "Unknown non-tree model: "
+        f"{best_non_tree_name}"
+    )
+
+
+# Each possible pipeline above exactly matches the preprocessing/model
+# combination used for that same named model in Task 3:
+#
+# KNN Unscaled = KNN only
+# KNN Scaled = StandardScaler + KNN
+# KNN PCA = StandardScaler + PCA(n) + KNN
+# Logistic Regression Scaled = StandardScaler + Logistic Regression
+# Logistic Regression PCA = StandardScaler + PCA(n) + Logistic Regression
+
+print(
+    "Non-Tree Pipeline Steps:",
+    list(non_tree_pipeline.named_steps.keys())
+)
 
 
 non_tree_pipeline.fit(
@@ -1206,9 +1382,12 @@ print(
 )
 
 
-# The best non-tree classifier is also selected using mean
-# cross-validation accuracy. The pipeline includes whatever
-# preprocessing that version used earlier in Task 3.
+# The best non-tree classifier is selected using mean cross-validation
+# accuracy. After the model name is selected, the matching branch above
+# rebuilds the exact preprocessing/model combination used in Task 3.
+#
+# This removes ambiguity because each possible model name has its own
+# explicit Pipeline definition rather than sharing a generic pipeline.
 
 
 # --- Final Summary ---
@@ -1237,46 +1416,11 @@ print(
     best_model_name
 )
 
-if lr_pca_acc > lr_scaled_acc:
-    print("PCA improved Logistic Regression accuracy on this test split.")
-    # This is what passed there was a difference
-    # Reducing the dimensions may have removed some redundant or noisy information overall increasing accuracy.
-    pass
-
-elif lr_pca_acc < lr_scaled_acc:
-    print("PCA reduced Logistic Regression accuracy on this test split.")
-    # Some useful predictive information may have been lost during PCA.
-    pass
-
-else:
-    print("PCA made no difference to Logistic Regression accuracy on this test split.")
-    pass
-
-
-tree_top_features = set(
-    tree_importances.head(10).index
-)
-
-rf_top_features = set(
-    rf_importances.head(10).index
-)
-
-common_features = (
-    tree_top_features
-    .intersection(rf_top_features)
-)
-
-print(
-    "\nFeatures in both top 10 lists:",
-    common_features
-)
-
-# The Decision Tree and Random Forest agree on some of the most important
-# features when those features appear in both top 10 lists.
+# Logistic Regression PCA vs. non-PCA was compared directly in the
+# Task 3 model comparison section.
 #
-# They do not have to rank every feature the same way because the Decision
-# Tree gets its importance from one tree, while the Random Forest averages
-# importance across many different trees.
+# Decision Tree vs. Random Forest feature overlap was also compared
+# directly in the Task 3 feature-importance section.
 
 
 # Scaling changed KNN because KNN depends on distances between features.
