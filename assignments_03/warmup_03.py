@@ -317,15 +317,10 @@ total_l1_size_100
 
 
 
-Smaller C means stronger regularization, which should make the
-
-coefficients smaller.
-
-
-
-Larger C means weaker regularization, which allows the coefficients
-
-to become larger.
+# Smaller C means stronger regularization, which should make the
+# coefficients smaller.
+# Larger C means weaker regularization, which allows the coefficients
+# to become larger.
 # --- Digits Setup ---
 
 digits = load_digits()
