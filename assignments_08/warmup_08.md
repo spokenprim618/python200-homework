@@ -20,30 +20,29 @@
 
  Cloud Concepts Question 3
 
- Gmail - SaaS: You use the application while the provider manages it.
+ Gmail — SaaS: It is a complete email application accessed through the web without managing 
+ its infrastructure.
+ 
+ Azure Virtual Machines — IaaS: It provides configurable virtual computing infrastructure while the user manages the operating system and applications.
+ 
+ AWS S3 — IaaS: It provides managed cloud storage infrastructure for applications and data.
+ 
+  GitHub Codespaces — PaaS: It provides a managed cloud development environment where developers can build and run code.
 
- AWS - IaaS: You rent a virtual machine and manage the
- operating system and software yourself.
+ Snowflake — SaaS: It is a fully managed cloud data platform that users access without managing the underlying infrastructure.
 
- AWS S3 - Object storage: It is used to store files and access them by a key.
+ Supabase — BaaS: It provides ready-made backend services such as a database, authentication, storage, APIs, and serverless functions.
 
- GitHub Codespaces - Not classified in the lesson.
-
- Snowflake - Managed data platform: It is a managed platform for working with
- data.
-
- Supabase - BaaS: It provides things like a database, authentication, and
- storage for applications.
-
- IaaS: You rent basic computing resources and manage the operating system and
- software yourself.
+ IaaS: You rent basic computing resources while managing the operating
+ system, software, and applications yourself.
  Example: Azure Virtual Machines.
 
- PaaS: The provider manages the infrastructure not you and you mainly manage your code
- and application.
- Example: AWS.
+ PaaS: The provider manages the infrastructure, operating system, and
+ updates while you mainly manage your code, application, and data.
+ Example: Supabase.
 
- SaaS: You use an application that the provider manages for you.
+ SaaS: You use a complete application managed by the provider without
+ controlling its backend infrastructure or source code.
  Example: Gmail.
 
  Cloud Concepts Question 4
@@ -87,16 +86,17 @@
 
  Cloud Landscape Part 2 Question 3
 
- 1. Object storage - AWS S3
+ 1. Object storage — AWS S3
+ It can store datasets, model files, images, and other files in the cloud.
 
- 2. ML platform - AWS SageMaker
- It can be used to train machine learning models with a GPU.
+ 2. Data warehouse — AWS Redshift
+ It can analyze large amounts of historical business data using SQL.
 
- 3. Serverless compute - AWS Lambda
- It can run the API without me having to manage the servers.
+ 3. Serverless compute — AWS Lambda
+ It can run API or pipeline code without requiring me to manage a server.
 
- 4. LLM API - Azure OpenAI
- It lets me send information to a large language model and get a text response.
+ 4. LLM API — Azure OpenAI
+ It lets me send prompts to a large language model and receive generated text.
 
  Cloud Landscape Part 2 Question 4
  I could make a weather data project using Supabase for the database and
