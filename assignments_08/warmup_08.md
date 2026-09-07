@@ -60,7 +60,7 @@
 
  Part 2: Warmup — Cloud Landscape
 
- Cloud Landscape Question 1
+ Cloud Landscape Part 2 Question 1
 
  AWS - Has the largest variety of cloud services and is often used by large
  companies, startups, and organizations with engineering teams.
@@ -71,7 +71,7 @@
  Azure - Is strong for businesses and government because it works well with
  Microsoft's other products.
 
- Cloud Landscape Question 2
+ Cloud Landscape Part 2 Question 2
 
  Access - Supabase was easier for students to access and had a free tier that
  was enough for the course.
@@ -85,7 +85,7 @@
  Reflection - I think I should choose a cloud tool based on how easy it is to
  access, how well it fits the project, and what skills I can learn from it.
 
- Cloud Landscape Question 3
+ Cloud Landscape Part 2 Question 3
 
  1. Object storage - AWS S3
 
@@ -98,7 +98,7 @@
  4. LLM API - Azure OpenAI
  It lets me send information to a large language model and get a text response.
 
- Cloud Landscape Question 4
+ Cloud Landscape Part 2 Question 4
  I could make a weather data project using Supabase for the database and
  BigQuery for analyzing the data. I could also use an LLM API to process some
  of the data.
