@@ -18,7 +18,7 @@ print(f"Response: {response.choices[0].message.content}")
 
 print(f"Model name: {response.model}")
 
-print(f"Usage of tokens: {repsonse.usage.total_tokens}")
+print(f"Usage of tokens: {response.usage.total_tokens}")
 
 # API Q2
 
@@ -37,7 +37,10 @@ for temp in temperatures:
     print(f"\nTemperature: {temp}")
     print(response.choices[0].message.content)
 
-# I would assume the answer would change because the more access to probable tokens based on temperture. If you want predictable answers use a lower temperature.
+# Temperature 0 produced one short, direct name, while 0.7 and 1.5 produced
+# longer lists with more variation. The 1.5 response also included more unusual
+# ideas, such as "Analog to Avatar (AtoA) Consulting." I would use temperature 0
+# when I need the most consistent and reproducible output.
 
 # API Q3
 
@@ -73,7 +76,10 @@ response = client.chat.completions.create(
 
 print(response.choices[0].message.content)
 
-# It could reduce the lenght of an answer to just what is needed and not have the model go on for longer costing more
+# The response stopped in the middle of its explanation because the model reached
+# the 15-token limit. In a real application, max_tokens can keep responses concise,
+# control API costs and latency, and prevent the model from generating more text
+# than the application needs.
 
 # --- API ---
 
@@ -135,7 +141,11 @@ response = client.chat.completions.create(
 print("\n=== Pirate Personality ===")
 print(response.choices[0].message.content)
 
-# I don't have the model to see
+# The tutor response used patient language, a detailed step-by-step explanation,
+# and encouragement at the end. The second response explained the same concept
+# with stern military language, commands such as "Listen up" and "Dismissed," and
+# a more forceful tone. This shows that the system message can change the style
+# and personality of an answer without changing the main subject being explained.
 
 # System Messages and Personas Q2
 
@@ -175,7 +185,9 @@ response = client.chat.completions.create(
 
 print(response.choices[0].message.content)
 
-# It is due to the model having access to the message history and who answered
+# The model knows the name Jordan because the complete conversation history was
+# included in the messages list for this API call. The API did not remember an
+# earlier call; it found the name in the context that was sent with this request.
 
 # Prompt engineering
 
@@ -243,7 +255,10 @@ response = client.chat.completions.create(
 
 print(response.choices[0].message.content)
 
-# I assume the model would take on the information or structure of the example
+# The one-shot response used the same consistent "Review #: Sentiment" structure
+# as the zero-shot output, so there was no major visible change in this run. The
+# example still made the expected label and format more explicit, which can make
+# responses more consistent across repeated calls.
 
 # Prompt engineering Q3
 
@@ -285,8 +300,12 @@ response = client.chat.completions.create(
 
 print(response.choices[0].message.content)
 
-# I would choose zero shot on answer tasks, one shot if there is need for a small guide,
-# and few shot if there is a need for consistency for a certain structure of response
+# The zero-shot and one-shot outputs were concise and correctly labeled all three
+# reviews, while the few-shot response followed a more detailed and consistent
+# format by repeating each review before its sentiment. I would use zero-shot for
+# a simple, familiar task, one-shot when one example is enough to demonstrate the
+# expected format, and few-shot when the model needs examples of several classes
+# or when format and classification consistency are especially important.
 
 # Prompt Engineering Q4
 
@@ -314,7 +333,10 @@ response = client.chat.completions.create(
 
 print(response.choices[0].message.content)
 
-# It is able to go through every step without skipping anything and it adds a form of checks for itself along with visibility in it's steps
+# Asking for step-by-step reasoning separated the calculation into the 12% raise
+# ($10,200), the post-raise salary ($95,200), and the additional $7,500, producing
+# the correct final salary of $102,700. Breaking a multi-step problem into smaller
+# calculations can reduce skipped operations and makes the result easier to check.
 
 # Prompt Engineering Q5
 
@@ -421,14 +443,21 @@ response = client.chat.completions.create(
 
 print(response.choices[0].message.content)
 
-# It keeps a seperation so the model knows what is the item to follow along
-# and what is the item that needs some work or consideration on
+# Delimiters clearly separate the instructions from the text being analyzed. This
+# reduces ambiguity about which text the model should transform and helps prevent
+# content inside the user text from being mistaken for part of the main prompt,
+# including accidental or malicious prompt-injection instructions.
 
 # Olama
 
 # Olama 1
 
-# I did not have enough space to download olama but here is openAI
+# I did not have enough storage space to install Ollama, so I could not produce a
+# local-model response or make a direct comparison. The OpenAI model returned a
+# clear two-sentence definition that explained both what an LLM does and how it
+# uses deep learning to learn language patterns. One advantage of a local model is
+# greater privacy and no per-request API cost, while one disadvantage is that it
+# requires local storage, memory, computing power, and setup.
 
 response = client.chat.completions.create(
     model="gpt-4o-mini",

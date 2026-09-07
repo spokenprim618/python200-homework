@@ -1,10 +1,16 @@
 # Task 6
-# The specification of speach styles is biased to certain audiences that would respond differently to certain styles.
-# It may give answers the model learned that persona would give which may not be what is needed.
-# The guard rails I will put is checks for more moderation resiliance in case someone tries to use this for evil purposes. 
-# I would want the model output to be reviewed as well to make sure they are not giving very biased responses.
-# There would need to be some checks also on the models accuracy.
-
+# The chatbot stayed professional and focused on job applications, but the
+# resume rewrites exposed an important reliability problem. It invented a 20%
+# increase in customer satisfaction, a 15% improvement in efficiency, delivery
+# two weeks ahead of schedule, and 10% cost savings, even though none of those
+# details appeared in the original bullets. This could cause a user to submit
+# false or misleading information in a job application. The model may also
+# produce responses influenced by assumptions about certain careers, industries,
+# or communication styles that do not fit every user. As guardrails, I would
+# prevent the model from adding unsupported numbers or qualifications and ask
+# the user for those details instead. I would also use moderation, test the
+# chatbot with users from different backgrounds, evaluate its accuracy, and
+# require the user to review every response before submitting it.
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -53,16 +59,24 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
 
     prompt = f"""
     You are a professional resume coach helping a career changer.
-    Rewrite each resume bullet point below to be more specific, results-oriented, and compelling.
-    Use strong action verbs. Do not invent facts that aren't implied by the original.
 
-    Return ONLY a valid JSON list. Each item should have two keys:
-    "original" (the original bullet) and "improved" (your rewritten version).
+    Rewrite each resume bullet below to be more specific, results-oriented,
+    and compelling. Use strong action verbs, but do not invent facts.
+
+    Return only a valid JSON list using this exact structure:
+    [
+    {{
+        "original": "original bullet",
+        "improved": "rewritten bullet"
+    }}
+    ]
+
+    Do not include Markdown, triple backticks, a ```json label, explanations,
+    introductory text, or text after the JSON. Your entire response must begin
+    with [ and end with ].
 
     Bullet points:
-    ```
     {bullet_text}
-    ```
     """
 
     messages = [{"role": "user", "content": prompt}]
@@ -160,7 +174,7 @@ def is_safe(text: str) -> bool:
 def run_chatbot():
     # 1. Initialize conversation history with your system prompt
     messages = [
-        {"role": "system", "content": YOUR_SYSTEM_PROMPT}
+        {"role": "system", "content": system_prompt}
     ]
 
     print("=" * 50)
