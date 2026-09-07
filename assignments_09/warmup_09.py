@@ -14,7 +14,7 @@ from supabase import create_client, Client
 # 1. The Supabase project URL
 # 2. The Supabase project API key
 # I find the API key in project settings in API Keys and I use the secret key.
-# i can't find the project url but I use the ID within the link and the template url.
+# i find the Api URL through interations to data API and there is the link.
 # This information should never be hardcoded because others could use bots to scrape my repo to use my api without my knowledge which would cost me along with other attacks.
 
 # Q2
