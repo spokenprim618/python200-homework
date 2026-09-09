@@ -63,7 +63,7 @@ def main():
     # --- Step 1: Incremental Read ---
     with open(METADATA_PATH, encoding="utf-8") as metadata_file:
         metadata = json.load(metadata_file)
-    features = metadata["features"]
+    features = metadata["feature_names"]
 
     raw_rows = supabase.table("weather_raw").select("*").execute().data
 
