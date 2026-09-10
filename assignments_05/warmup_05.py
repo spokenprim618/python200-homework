@@ -2,212 +2,165 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import json
 
-# --- API ---
-
-# API Q1
 
 load_dotenv()
 client = OpenAI()
 
-response = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[{"role": "user", "content": "What is one thing that makes Python a good language for beginners?"}]
-)
 
-print(f"Response: {response.choices[0].message.content}")
+# --- Chat Completions API ---
 
-print(f"Model name: {response.model}")
-
-print(f"Usage of tokens: {response.usage.total_tokens}")
-
-# API Q2
-
-prompt = "Suggest a creative name for a data engineering consultancy."
-temperatures = [0, 0.7, 1.5]
-
-for temp in temperatures:
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "user", "content": prompt}
-        ],
-        temperature=temp
-    )
-
-    print(f"\nTemperature: {temp}")
-    print(response.choices[0].message.content)
-
-# Temperature 0 produced one short, direct name, while 0.7 and 1.5 produced
-# longer lists with more variation. The 1.5 response also included more unusual
-# ideas, such as "Analog to Avatar (AtoA) Consulting." I would use temperature 0
-# when I need the most consistent and reproducible output.
-
-# API Q3
-
+# API Q1
 response = client.chat.completions.create(
     model="gpt-4o-mini",
     messages=[
         {
             "role": "user",
-            "content": "Give me a one-sentence fun fact about pandas (the animal, not the library)."
+            "content": "What is one thing that makes Python a good language for beginners?",
+        }
+    ],
+)
+
+print("API Q1 Response:", response.choices[0].message.content)
+print("API Q1 Model name:", response.model)
+print("API Q1 Total tokens used:", response.usage.total_tokens)
+
+
+# API Q2
+prompt = "Suggest a creative name for a data engineering consultancy."
+temperatures = [0, 0.7, 1.5]
+
+for temperature in temperatures:
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=temperature,
+    )
+    print(f"\nAPI Q2 - Temperature {temperature}:")
+    print(response.choices[0].message.content)
+
+# Temperature 0 produced the most direct and predictable response. Higher
+# temperatures produced more variety and unusual ideas. I would use temperature
+# 0 when I need the most consistent and reproducible output.
+
+
+# API Q3
+response = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {
+            "role": "user",
+            "content": "Give me a one-sentence fun fact about pandas (the animal, not the library).",
         }
     ],
     n=3,
-    temperature=1.0
+    temperature=1.0,
 )
 
-for i, choice in enumerate(response.choices, start=1):
-    print(f"\nCompletion {i}:")
+for number, choice in enumerate(response.choices, start=1):
+    print(f"\nAPI Q3 - Completion {number}:")
     print(choice.message.content)
 
 
 # API Q4
-
 response = client.chat.completions.create(
     model="gpt-4o-mini",
-    messages=[
-        {
-            "role": "user",
-            "content": "Explain how neural networks work."
-        }
-    ],
-    max_tokens=15
+    messages=[{"role": "user", "content": "Explain how neural networks work."}],
+    max_tokens=15,
 )
 
+print("\nAPI Q4 Response:")
 print(response.choices[0].message.content)
 
-# The response stopped in the middle of its explanation because the model reached
-# the 15-token limit. In a real application, max_tokens can keep responses concise,
-# control API costs and latency, and prevent the model from generating more text
-# than the application needs.
-
-# --- API ---
+# The response stopped before completing the explanation because it reached the
+# 15-token limit. In a real application, max_tokens can control cost, latency,
+# and the maximum length of a response.
 
 
-# System Messages and Personas
+# --- System Messages and Personas ---
 
-# System Messages and Personas Q1
-
-
-from dotenv import load_dotenv
-from openai import OpenAI
-
-load_dotenv()
-client = OpenAI()
-
-# Personality 1: Tutor
-messages = [
+# System Q1 - Personality 1: Patient tutor
+tutor_messages = [
     {
         "role": "system",
         "content": (
-            "You are a patient, encouraging Python tutor. "
-            "You always explain things simply and end with a word of encouragement."
-        )
+            "You are a patient, encouraging Python tutor. Explain ideas simply, "
+            "use a small example, and end with a word of encouragement."
+        ),
     },
     {
         "role": "user",
-        "content": "I don't understand what a list comprehension is."
-    }
+        "content": "I don't understand what a list comprehension is.",
+    },
 ]
 
-response = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=messages
+tutor_response = client.chat.completions.create(
+    model="gpt-4o-mini", messages=tutor_messages
 )
+print("\nSystem Q1 - Patient Tutor Personality:")
+print(tutor_response.choices[0].message.content)
 
-print("=== Tutor Personality ===")
-print(response.choices[0].message.content)
-
-# Personality 2: Pirate
-messages = [
+# System Q1 - Personality 2: Impatient pirate captain
+pirate_messages = [
     {
         "role": "system",
         "content": (
-            "You are stern like an army sergent"
-            "using army patriotic language."
-        )
+            "You are an impatient pirate captain teaching Python to your crew. "
+            "Use pirate vocabulary, short commands, and a dramatic nautical "
+            "analogy. Do not use the gentle tone of a tutor."
+        ),
     },
     {
         "role": "user",
-        "content": "I don't understand what a list comprehension is."
-    }
+        "content": "I don't understand what a list comprehension is.",
+    },
 ]
 
-response = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=messages
+pirate_response = client.chat.completions.create(
+    model="gpt-4o-mini", messages=pirate_messages
 )
+print("\nSystem Q1 - Pirate Captain Personality:")
+print(pirate_response.choices[0].message.content)
 
-print("\n=== Pirate Personality ===")
-print(response.choices[0].message.content)
-
-# The tutor response used patient language, a detailed step-by-step explanation,
-# and encouragement at the end. The second response explained the same concept
-# with stern military language, commands such as "Listen up" and "Dismissed," and
-# a more forceful tone. This shows that the system message can change the style
-# and personality of an answer without changing the main subject being explained.
-
-# System Messages and Personas Q2
+# The patient tutor should use a calm explanation and encouragement. The pirate
+# captain should use nautical vocabulary, brief commands, and a forceful tone.
+# Both explain the same concept, but their personalities are completely different.
 
 
-from dotenv import load_dotenv
-from openai import OpenAI
-
-load_dotenv()
-client = OpenAI()
-
+# System Q2
 messages = [
-    {
-        "role": "system",
-        "content": "You are a helpful assistant."
-    },
-    {
-        "role": "user",
-        "content": "My name is Jordan and I'm learning Python."
-    },
+    {"role": "system", "content": "You are a helpful assistant."},
+    {"role": "user", "content": "My name is Jordan and I'm learning Python."},
     {
         "role": "assistant",
         "content": (
             "Nice to meet you, Jordan! Python is a great choice. "
             "What would you like to work on?"
-        )
+        ),
     },
-    {
-        "role": "user",
-        "content": "Can you remind me what my name is?"
-    }
+    {"role": "user", "content": "Can you remind me what my name is?"},
 ]
 
-response = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=messages
-)
-
+response = client.chat.completions.create(model="gpt-4o-mini", messages=messages)
+print("\nSystem Q2 Response:")
 print(response.choices[0].message.content)
 
-# The model knows the name Jordan because the complete conversation history was
-# included in the messages list for this API call. The API did not remember an
-# earlier call; it found the name in the context that was sent with this request.
+# The model knows Jordan's name because the conversation history was included in
+# this request. The API is still stateless; the context was sent again manually.
 
-# Prompt engineering
 
-# Prompt engineering Q1
+# --- Prompt Engineering ---
 
 reviews = [
     "The onboarding process was smooth and the team was welcoming.",
     "The software crashes constantly and support never responds.",
-    "Great price, but the documentation is nearly impossible to follow."
+    "Great price, but the documentation is nearly impossible to follow.",
 ]
 
-prompt = f"""
+
+# Prompt Q1 - Zero-shot: instructions and reviews, with no examples
+zero_shot_prompt = f"""
 Classify each review as positive, negative, or mixed.
-
-Example:
-
-Review: "Fast shipping but the item arrived damaged."
-Sentiment: mixed
-
-Now classify these reviews:
+Return one line per review in the format: Review number: sentiment.
 
 Review 1: "{reviews[0]}"
 Review 2: "{reviews[1]}"
@@ -216,30 +169,21 @@ Review 3: "{reviews[2]}"
 
 response = client.chat.completions.create(
     model="gpt-4o-mini",
-    messages=[
-        {"role": "user", "content": prompt}
-    ]
+    messages=[{"role": "user", "content": zero_shot_prompt}],
 )
-
+print("\nPrompt Q1 - Zero-Shot Results:")
 print(response.choices[0].message.content)
 
-# Prompt engineering Q2
 
-reviews = [
-    "The onboarding process was smooth and the team was welcoming.",
-    "The software crashes constantly and support never responds.",
-    "Great price, but the documentation is nearly impossible to follow."
-]
-
-prompt = f"""
+# Prompt Q2 - One-shot: one example demonstrates the expected classification
+one_shot_prompt = f"""
 Classify each review as positive, negative, or mixed.
 
 Example:
-
 Review: "Fast shipping but the item arrived damaged."
 Sentiment: mixed
 
-Now classify these reviews:
+Now classify the following reviews. Label each result with its review number.
 
 Review 1: "{reviews[0]}"
 Review 2: "{reviews[1]}"
@@ -248,31 +192,20 @@ Review 3: "{reviews[2]}"
 
 response = client.chat.completions.create(
     model="gpt-4o-mini",
-    messages=[
-        {"role": "user", "content": prompt}
-    ]
+    messages=[{"role": "user", "content": one_shot_prompt}],
 )
-
+print("\nPrompt Q2 - One-Shot Results:")
 print(response.choices[0].message.content)
 
-# The one-shot response used the same consistent "Review #: Sentiment" structure
-# as the zero-shot output, so there was no major visible change in this run. The
-# example still made the expected label and format more explicit, which can make
-# responses more consistent across repeated calls.
+# The example makes the desired label and output pattern more explicit. Even if
+# this run looks similar to zero-shot, one-shot prompting can improve consistency.
 
-# Prompt engineering Q3
 
-reviews = [
-    "The onboarding process was smooth and the team was welcoming.",
-    "The software crashes constantly and support never responds.",
-    "Great price, but the documentation is nearly impossible to follow."
-]
-
-prompt = f"""
-Classify reviews as positive, negative, or mixed.
+# Prompt Q3 - Few-shot: examples demonstrate all three possible classes
+few_shot_prompt = f"""
+Classify each review as positive, negative, or mixed.
 
 Examples:
-
 Review: "The product exceeded all expectations."
 Sentiment: positive
 
@@ -282,191 +215,152 @@ Sentiment: negative
 Review: "The features are excellent, but setup was frustrating."
 Sentiment: mixed
 
-Now classify these reviews:
+Now classify the following reviews. Label each result with its review number.
 
 Review 1: "{reviews[0]}"
-
 Review 2: "{reviews[1]}"
-
 Review 3: "{reviews[2]}"
 """
 
 response = client.chat.completions.create(
     model="gpt-4o-mini",
-    messages=[
-        {"role": "user", "content": prompt}
-    ]
+    messages=[{"role": "user", "content": few_shot_prompt}],
 )
-
+print("\nPrompt Q3 - Few-Shot Results:")
 print(response.choices[0].message.content)
 
-# The zero-shot and one-shot outputs were concise and correctly labeled all three
-# reviews, while the few-shot response followed a more detailed and consistent
-# format by repeating each review before its sentiment. I would use zero-shot for
-# a simple, familiar task, one-shot when one example is enough to demonstrate the
-# expected format, and few-shot when the model needs examples of several classes
-# or when format and classification consistency are especially important.
+# I would use zero-shot for a simple task the model already understands, one-shot
+# when one example can clarify the expected format, and few-shot when the model
+# needs examples of several classes or greater consistency.
 
-# Prompt Engineering Q4
 
-prompt = """
-Solve the following problem.
+# Prompt Q4 - Chain of thought
+reasoning_prompt = """
+Solve the problem below. Show your calculations step by step, then label the
+final answer clearly.
 
-Show your reasoning step by step before giving the final answer.
-
-A data engineer earns $85,000 per year.
-She gets a 12% raise, then 6 months later
-takes a new job that pays $7,500 more per year
-than her post-raise salary.
-
+A data engineer earns $85,000 per year. She gets a 12% raise, then 6 months later
+takes a new job that pays $7,500 more per year than her post-raise salary.
 What is her final annual salary?
-
-Label the final answer clearly.
 """
 
 response = client.chat.completions.create(
     model="gpt-4o-mini",
-    messages=[
-        {"role": "user", "content": prompt}
-    ]
+    messages=[{"role": "user", "content": reasoning_prompt}],
 )
-
+print("\nPrompt Q4 - Step-by-Step Response:")
 print(response.choices[0].message.content)
 
-# Asking for step-by-step reasoning separated the calculation into the 12% raise
-# ($10,200), the post-raise salary ($95,200), and the additional $7,500, producing
-# the correct final salary of $102,700. Breaking a multi-step problem into smaller
-# calculations can reduce skipped operations and makes the result easier to check.
+# Breaking a multi-step problem into smaller calculations makes skipped steps
+# less likely and makes the final answer easier for the user to verify.
 
-# Prompt Engineering Q5
 
+# Prompt Q5 - Structured output
 review = (
-    "I've been using this tool for three months. "
-    "It handles large datasets well, "
+    "I've been using this tool for three months. It handles large datasets well, "
     "but the UI is clunky and the export options are limited."
 )
 
-prompt = f"""
-Analyze the following review.
+structured_prompt = f"""
+Analyze the review below. Return only valid JSON with these keys:
+"sentiment", "confidence", and "reason". Confidence must be a float from 0 to 1,
+and reason must be one sentence.
 
-Return ONLY valid JSON with these keys:
-
-sentiment
-confidence
-reason
-
-Review:
-"{review}"
+Review: "{review}"
 """
 
 response = client.chat.completions.create(
     model="gpt-4o-mini",
-    messages=[
-        {"role": "user", "content": prompt}
-    ]
+    messages=[{"role": "user", "content": structured_prompt}],
 )
-
 raw_response = response.choices[0].message.content
-
-print("Raw Response:")
+print("\nPrompt Q5 - Raw Response:")
 print(raw_response)
 
 try:
     result = json.loads(raw_response)
-
-    print("\nSentiment:", result["sentiment"])
+    print("Sentiment:", result["sentiment"])
     print("Confidence:", result["confidence"])
     print("Reason:", result["reason"])
+except (json.JSONDecodeError, KeyError, TypeError) as error:
+    print("The response was not valid JSON in the required structure:", error)
+    print("Raw response for debugging:", raw_response)
 
-except json.JSONDecodeError:
-    print("\nInvalid JSON received.")
-    print(raw_response)
 
-
-# Prompt Engineering Q6
-
+# Prompt Q6 - Delimiters
 user_text = (
-    "First boil a pot of water. Once boiling, add a handful of salt "
-    "and the pasta. Cook for 8-10 minutes until al dente. "
-    "Drain and toss with your sauce of choice."
+    "First boil a pot of water. Once boiling, add a handful of salt and the "
+    "pasta. Cook for 8-10 minutes until al dente. Drain and toss with your "
+    "sauce of choice."
 )
 
-prompt = f"""
+delimiter_prompt = f"""
 You will be given text inside triple backticks.
-
-If it contains step-by-step instructions,
-rewrite them as a numbered list.
-
-If it does not contain instructions,
-respond with exactly:
-
-"No steps provided."
+If it contains step-by-step instructions, rewrite them as a numbered list.
+If it does not contain instructions, respond with exactly: "No steps provided."
 
 ```{user_text}```
 """
 
 response = client.chat.completions.create(
     model="gpt-4o-mini",
-    messages=[
-        {"role": "user", "content": prompt}
-    ]
+    messages=[{"role": "user", "content": delimiter_prompt}],
 )
-
+print("\nPrompt Q6 - Instructional Text:")
 print(response.choices[0].message.content)
 
-
-non_instruction = (
-    "The weather was beautiful today. "
-    "Many people visited the park to enjoy the sunshine."
+non_instruction_text = (
+    "The weather was beautiful today. Many people visited the park to enjoy "
+    "the sunshine."
 )
 
-prompt = f"""
+non_instruction_prompt = f"""
 You will be given text inside triple backticks.
+If it contains step-by-step instructions, rewrite them as a numbered list.
+If it does not contain instructions, respond with exactly: "No steps provided."
 
-If it contains step-by-step instructions,
-rewrite them as a numbered list.
-
-If it does not contain instructions,
-respond with exactly:
-
-"No steps provided."
-
-```{non_instruction}```
+```{non_instruction_text}```
 """
 
 response = client.chat.completions.create(
     model="gpt-4o-mini",
-    messages=[
-        {"role": "user", "content": prompt}
-    ]
+    messages=[{"role": "user", "content": non_instruction_prompt}],
 )
-
+print("\nPrompt Q6 - Non-Instructional Text:")
 print(response.choices[0].message.content)
 
-# Delimiters clearly separate the instructions from the text being analyzed. This
-# reduces ambiguity about which text the model should transform and helps prevent
-# content inside the user text from being mistaken for part of the main prompt,
-# including accidental or malicious prompt-injection instructions.
+# Delimiters separate the data being analyzed from the instructions. This reduces
+# ambiguity and helps prevent user text from being mistaken for part of the prompt.
 
-# Olama
 
-# Olama 1
+# --- Local Models with Ollama ---
 
-# I did not have enough storage space to install Ollama, so I could not produce a
-# local-model response or make a direct comparison. The OpenAI model returned a
-# clear two-sentence definition that explained both what an LLM does and how it
-# uses deep learning to learn language patterns. One advantage of a local model is
-# greater privacy and no per-request API cost, while one disadvantage is that it
-# requires local storage, memory, computing power, and setup.
+# Ollama Q1
+# Run this command in a terminal before submitting:
+# ollama run qwen3:0.6b "Explain what a large language model is in two sentences."
+
+# Paste the real terminal response between the triple quotes below. It must come
+# from Ollama; an OpenAI response should not be presented as local-model output.
+ollama_output = """
+PASTE YOUR ACTUAL OLLAMA OUTPUT HERE
+"""
+
+print("\nOllama Q1 - Saved Ollama Output:")
+print(ollama_output.strip())
 
 response = client.chat.completions.create(
     model="gpt-4o-mini",
     messages=[
         {
             "role": "user",
-            "content": "Explain what a large language model is in two sentences."
+            "content": "Explain what a large language model is in two sentences.",
         }
-    ]
+    ],
 )
-
+print("\nOllama Q1 - OpenAI Response:")
 print(response.choices[0].message.content)
+
+# Complete this comparison after running Ollama. Compare clarity, detail, speed,
+# or style. One advantage of a local model is greater privacy and no per-request
+# API charge. One disadvantage is that it requires local storage, memory,
+# computing power, and setup.
