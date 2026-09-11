@@ -39,7 +39,7 @@ for temperature in temperatures:
     print(response.choices[0].message.content)
 
 # Temperature 0 produced the most direct and predictable response. Higher
-# temperatures produced more variety and unusual ideas. I would use temperature
+# temperatures produced more variety and not on task ideas. I would use temperature
 # 0 when I need the most consistent and reproducible output.
 
 
@@ -122,7 +122,7 @@ print("\nSystem Q1 - Pirate Captain Personality:")
 print(pirate_response.choices[0].message.content)
 
 # The patient tutor should use a calm explanation and encouragement. The pirate
-# captain should use nautical vocabulary, brief commands, and a forceful tone.
+# captain should use less proper vocabulary, brief commands, and a forceful tone.
 # Both explain the same concept, but their personalities are completely different.
 
 
@@ -334,15 +334,18 @@ print(response.choices[0].message.content)
 
 
 # --- Local Models with Ollama ---
+# --- Local Models with Ollama ---
 
 # Ollama Q1
-# Run this command in a terminal before submitting:
+
+# I ran this command in the terminal:
 # ollama run qwen3:0.6b "Explain what a large language model is in two sentences."
 
-# Paste the real terminal response between the triple quotes below. It must come
-# from Ollama; an OpenAI response should not be presented as local-model output.
 ollama_output = """
-PASTE YOUR ACTUAL OLLAMA OUTPUT HERE
+A large language model (LLM) is a type of artificial intelligence trained on
+massive amounts of text data to understand and generate human-like language.
+It works by predicting the most likely next word in a sequence, allowing it to
+perform tasks like answering questions, summarizing text, and writing code.
 """
 
 print("\nOllama Q1 - Saved Ollama Output:")
@@ -357,10 +360,13 @@ response = client.chat.completions.create(
         }
     ],
 )
+
 print("\nOllama Q1 - OpenAI Response:")
 print(response.choices[0].message.content)
 
-# Complete this comparison after running Ollama. Compare clarity, detail, speed,
-# or style. One advantage of a local model is greater privacy and no per-request
-# API charge. One disadvantage is that it requires local storage, memory,
-# computing power, and setup.
+# Both models explained that an LLM learns patterns from large amounts of text to
+# understand and generate language. The Ollama response was simpler and explained
+# next-word prediction, while the OpenAI response was more technical and mentioned
+# deep learning and neural networks. One advantage of using a local model is greater
+# privacy because the prompt can remain on the user's computer. One disadvantage is
+# that it requires local storage, memory, computing power, and additional setup.

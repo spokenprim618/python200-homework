@@ -275,8 +275,7 @@ def run_chatbot():
 
 
 if __name__ == "__main__":
-    # Run this once while verifying Task 4, then comment it out if you do not want
-    # the moderation tests to print every time the program starts.
+
     test_moderation()
 
     starter_bullets = [
