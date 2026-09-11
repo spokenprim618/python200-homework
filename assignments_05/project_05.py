@@ -47,13 +47,17 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
 
     prompt = f"""
 You are a professional resume coach helping a career changer.
-Rewrite each resume bullet to be clearer, more specific, and results-oriented.
-Use strong action verbs, but do not invent numbers, results, duties, or facts.
-If a useful detail is missing, improve only the wording that is supported.
+Rewrite each supplied resume bullet to be more specific, results-oriented, and
+compelling. Use strong action verbs, but use only information stated or clearly
+implied by the original bullet. Never invent percentages, dollar amounts,
+deadlines, job duties, qualifications, achievements, or other results. If a
+metric or detail is missing, do not guess it or add a placeholder.
 
-Return only a valid JSON list. Every item must have exactly two string keys:
-"original" and "improved". Include one item for every supplied bullet. Do not
-include Markdown, code fences, an introduction, or text after the JSON.
+Return only a valid JSON list with exactly one item for every supplied bullet,
+in the same order as the input. Every item must contain exactly two string keys:
+"original" and "improved". Copy the supplied bullet exactly into "original" and
+place the rewritten version in "improved". Do not include Markdown, code fences,
+an introduction, explanations, or any text before or after the JSON list.
 
 Bullet points:
 ```
@@ -61,22 +65,32 @@ Bullet points:
 ```
 """
 
-    response = get_completion([{"role": "user", "content": prompt}])
+    response = get_completion(
+        [{"role": "user", "content": prompt}],
+        temperature=0,
+    )
 
     try:
         rewritten = json.loads(response)
         if not isinstance(rewritten, list):
             raise ValueError("The response is not a JSON list.")
 
-        for item in rewritten:
-            if not isinstance(item, dict) or not {
-                "original",
-                "improved",
-            }.issubset(item):
-                raise ValueError("A result is missing original or improved.")
+        if len(rewritten) != len(bullets):
+            raise ValueError("The model did not return one item per supplied bullet.")
 
-            print("\nOriginal:", item["original"])
-            print("Improved:", item["improved"])
+        for original_bullet, item in zip(bullets, rewritten):
+            if not isinstance(item, dict) or set(item) != {"original", "improved"}:
+                raise ValueError(
+                    "Every item must contain only original and improved."
+                )
+            if not isinstance(item["original"], str) or not isinstance(
+                item["improved"], str
+            ):
+                raise ValueError("The original and improved values must be strings.")
+            if item["original"] != original_bullet:
+                raise ValueError(
+                    "An original bullet was changed or returned out of order."
+                )
 
         return rewritten
     except (json.JSONDecodeError, TypeError, ValueError) as error:
@@ -84,6 +98,19 @@ Bullet points:
         print("Error:", error)
         print("Raw response:", response)
         return []
+
+
+def format_bullet_rewrites(rewritten: list[dict]) -> str:
+    sections = []
+    for item in rewritten:
+        sections.append(
+            f"Original: {item['original']}\nImproved: {item['improved']}"
+        )
+    return "\n\n".join(sections)
+
+
+def display_bullet_rewrites(rewritten: list[dict]) -> None:
+    print(format_bullet_rewrites(rewritten))
 
 
 # The starter bullets are weak because they use vague verbs and do not explain
@@ -158,6 +185,14 @@ def test_moderation() -> None:
     print("Task 4 - Flagged input result:", is_safe(flagged_text))
 
 
+def add_user_to_history(messages: list[dict], user_content: str) -> None:
+    messages.append({"role": "user", "content": user_content})
+
+
+def add_assistant_to_history(messages: list[dict], assistant_content: str) -> None:
+    messages.append({"role": "assistant", "content": assistant_content})
+
+
 # --- Task 5: Chatbot Loop ---
 
 def run_chatbot():
@@ -203,29 +238,21 @@ def run_chatbot():
 
             rewritten = rewrite_bullets(raw_bullets)
             if rewritten:
-                print(
-                    "\nJob Application Helper: Please review and edit these "
-                    "suggestions before submitting them.\n"
+                formatted_rewrites = format_bullet_rewrites(rewritten)
+                assistant_reply = (
+                    f"Here are the rewritten bullet points:\n\n{formatted_rewrites}\n\n"
+                    "Please review and edit these suggestions before submitting them."
                 )
-                assistant_result = json.dumps(rewritten, indent=2)
-                messages.append(
-                    {
-                        "role": "user",
-                        "content": (
-                            f"{user_input}\nHere are my bullet points:\n"
-                            + "\n".join(raw_bullets)
-                        ),
-                    }
+                print("\nJob Application Helper:")
+                print(assistant_reply)
+                print()
+
+                user_turn = (
+                    f"{user_input}\nHere are my bullet points:\n"
+                    + "\n".join(raw_bullets)
                 )
-                messages.append(
-                    {
-                        "role": "assistant",
-                        "content": (
-                            "Here are the rewritten bullet points:\n"
-                            f"{assistant_result}\nPlease review and edit them before submitting."
-                        ),
-                    }
-                )
+                add_user_to_history(messages, user_turn)
+                add_assistant_to_history(messages, assistant_reply)
 
         elif "cover letter" in user_input.lower():
             job_title = input(
@@ -243,39 +270,33 @@ def run_chatbot():
                 continue
 
             opening = generate_cover_letter(job_title, background)
+            assistant_reply = (
+                f"{opening}\n\n"
+                "Please review and edit this draft before submitting it."
+            )
             print("\nJob Application Helper:")
-            print(opening)
-            print("Please review and edit this draft before submitting it.\n")
+            print(assistant_reply)
+            print()
 
-            messages.append(
-                {
-                    "role": "user",
-                    "content": (
-                        f"{user_input}\nJob title: {job_title}\n"
-                        f"Background: {background}"
-                    ),
-                }
+            user_turn = (
+                f"{user_input}\nJob title: {job_title}\n"
+                f"Background: {background}"
             )
-            messages.append(
-                {
-                    "role": "assistant",
-                    "content": (
-                        f"{opening}\nPlease review and edit this draft before submitting it."
-                    ),
-                }
-            )
+            add_user_to_history(messages, user_turn)
+            add_assistant_to_history(messages, assistant_reply)
 
         else:
-            messages.append({"role": "user", "content": user_input})
+            add_user_to_history(messages, user_input)
             reply = get_completion(messages)
             print("\nJob Application Helper:")
             print(reply)
             print()
-            messages.append({"role": "assistant", "content": reply})
+            add_assistant_to_history(messages, reply)
 
 
 if __name__ == "__main__":
-
+    # Run this once while verifying Task 4, then comment it out if you do not want
+    # the moderation tests to print every time the program starts.
     test_moderation()
 
     starter_bullets = [
@@ -283,7 +304,9 @@ if __name__ == "__main__":
         "Made reports for the management team",
         "Worked with a team to finish the project on time",
     ]
-    rewrite_bullets(starter_bullets)
+    rewritten_bullets = rewrite_bullets(starter_bullets)
+    print("\nTask 2 - Bullet Rewriter Test:")
+    display_bullet_rewrites(rewritten_bullets)
 
     test_job_title = "Junior Data Engineer"
     test_background = (
@@ -299,12 +322,23 @@ if __name__ == "__main__":
 # --- Task 6: Ethics Reflection ---
 # Chosen format: Option A - Comment block
 #
-# The chatbot stayed professional and focused on job applications, but the resume
-# rewrites exposed an important reliability problem. It invented percentages and
-# results that did not appear in the original bullets, which could cause a user to
-# submit false or misleading information to an employer. Its advice may also favor
-# communication styles or industries that were better represented in its training
-# data. If I deployed this professionally, I would prevent unsupported numbers or
-# qualifications from being added and ask the user for missing details instead. I
-# would also use moderation, test the chatbot with users from different backgrounds,
-# evaluate its accuracy, and require users to review every response before submitting it.
+# Question 1 - Bias:
+# Because the chatbot learned from human-created text, it may repeat biases found
+# in that data. For example, it could favor a formal corporate communication style
+# and treat it as more professional than wording used in another culture or
+# industry. This could make its advice less helpful or fair for some job seekers.
+#
+# Question 2 - Submitting output without review:
+# A job seeker could submit a false or misleading application if the chatbot
+# invents information. In my test, it added percentages and results that were not
+# present in the original resume bullets. An employer could question the claim in
+# an interview, discover that it is unsupported, and lose trust in the applicant.
+# The output could also contain inaccurate role-specific advice because the model
+# may not know the expectations of that company or industry.
+#
+# Question 3 - Professional guardrails:
+# I would require users to review and approve every response before exporting it.
+# I would also prevent the model from adding unsupported numbers, qualifications,
+# or experiences and ask the user to provide missing details instead. Moderation,
+# privacy warnings, bias testing with people from different backgrounds, and clear
+# disclosure that the text was AI-assisted would further reduce possible harm.
