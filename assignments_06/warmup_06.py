@@ -225,7 +225,7 @@ print(f"Selected document: {result[0][0]}")
 
 # --- LlamaIndex ---
 
-brightleaf_dir = "brightleaf_pdf"
+brightleaf_dir = "lessons/05_AI_intro/resources/brightleaf_dir"
 
 brightleaf_documents = SimpleDirectoryReader(
     input_dir=brightleaf_dir
