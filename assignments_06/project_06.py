@@ -15,12 +15,7 @@ else:
 api_key = os.getenv("OPENAI_API_KEY")
 assert api_key, "OPENAI_API_KEY was not found in .env"
 
-docs_dir = (
-    Path(__file__).resolve().parent
-    / "resources"
-    / "groundwork_docs"
-)
-
+docs_dir = Path(__file__).resolve().parent / "resources" / "groundwork_docs"
 assert docs_dir.exists(), f"Document directory not found: {docs_dir}"
 print(f"Document directory found: {docs_dir}")
 
@@ -30,7 +25,6 @@ print(f"Document directory found: {docs_dir}")
 documents = SimpleDirectoryReader(input_dir=str(docs_dir)).load_data()
 
 print(f"\nLoaded {len(documents)} documents:")
-
 for document in documents:
     file_name = document.metadata.get("file_name", "Unknown file")
     print(f"- {file_name}")
@@ -82,7 +76,7 @@ for question in questions:
 # details are directly stated in the Groundwork documents. The retrieval
 # results should also show that different questions lead to the matching hours,
 # menu, loyalty, company history, or catering document.
-
+#
 # I would still compare each answer with its retrieved chunk because a
 # confident tone does not prove that an answer is accurate.
 
@@ -101,25 +95,22 @@ print(f"Question: {failure_question}")
 print(f"Full Response: {failure_response}")
 print("\nAll Three Retrieved Source Nodes:")
 
-for number, source in enumerate(
-    failure_response.source_nodes[:3],
-    start=1,
-):
+for number, source in enumerate(failure_response.source_nodes[:3], start=1):
     print_source(source, number=number)
 
 # I asked about Groundwork's most popular menu item because the menu may list
 # available products without providing sales or customer preference data. This
 # makes the requested conclusion difficult to support from the documents.
-
+#
 # The retriever may find the menu because it contains the words "menu item,"
 # but that does not mean the chunk identifies which item is most popular. If
 # the model names an item anyway, it is guessing beyond the retrieved
 # information.
-
+#
 # The model may still sound confident even when the source does not contain the
 # answer. This shows why AI-generated responses should be checked against their
 # retrieved evidence instead of being trusted based on tone alone.
-
+#
 # I would improve the system by giving the model instructions to clearly say
 # when the documents do not contain enough information. I could also use a
 # minimum similarity threshold, retrieve more candidate chunks, and rerank them
@@ -128,14 +119,19 @@ for number, source in enumerate(
 
 # --- Step 6: Reflection ---
 
-# The main LlamaIndex implementation only required a few lines to load the
-# documents, create the vector index, and build the query engine. This shows
-# that a framework can handle much of the chunking, embedding, storage, and
-# retrieval logic that would otherwise need to be written manually.
-
-# A useful business application would be a commercial real estate assistant
+# 1. The equivalent LlamaIndex implementation took three main lines: one to
+# load the documents, one to create the vector index, and one to create the
+# query engine. This shows that a framework can handle much of the chunking,
+# embedding, storage, and retrieval logic that would otherwise need to be
+# written manually.
+#
+# 2. A useful business application would be a commercial real estate assistant
 # that searches offering memorandums, leases, inspection reports, and operating
 # statements. An analyst could ask questions about occupancy, expenses, lease
 # terms, or property risks and receive answers connected to the relevant source
 # documents.
-  
+#
+# 3. RAG cannot fully prevent the model from misinterpreting relevant context
+# or making a conclusion that the retrieved text does not support. Retrieval
+# can give the model the right evidence, but the generated answer still needs
+# to be checked against that evidence.
